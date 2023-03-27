@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+	<title>読書管理</title>
+	<style type="text/css">
+	.container {
+		width: 70%;
+		margin-left:auto;
+		margin-right: auto;
+		background-color: #F0F0F0;
+		border: 1px solid grey;
+	}
+	.textbox {
+		width: 30em;
+	}
+	.number{
+		width:5em;
+		text-align: right;
+	}
+	.message {
+		color: red;
+	}
+	.readonly {
+	}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>編集</h1>
+		<form th:action="${action}" method="post" th:object="${form}">
+			<p class="message" th:text="*{message}">
+			<input type="hidden" name="_method" th:value="${_method}">
+			<table>
+				<tbody>
+					<tr>
+						<th>タイトル</th>
+						<td><input id="txtTitle" class="textbox" type="text" th:field="*{title}"></td>
+					</tr>
+					<tr>
+						<th>著者</th>
+						<td><input id="txtAuthor" class="textbox" type="text" th:field="*{author}"></td>
+					</tr>
+					<tr>
+						<th>出版社</th>
+						<td>
+							<input class="textbox" type="text" th:field="*{publisherName}"><br/>
+							<a th:href="@{/publisher/{id}(id=${form.publisherId})}" target="_blank">[[${form.publisherName}]]</a>
+							<input type="hidden" th:field="*{publisherId}" />
+						</td>
+					</tr>
+					<tr>
+						<th>出版年</th>
+						<td><input class="number" type="text" th:field="*{publishedYear}"</td>
+					</tr>
+					<tr>
+						<th>ISBN</th>
+						<td><input class="textbox" type="text" th:field="*{isbn}"></td>
+					</tr>
+					<tr>
+						<th>NOTE</th>
+						<td>
+							<textarea rows="10" cols="50" disabled="true" class="readonly">
+								[[${form.note}]]
+							</textarea>
+						</td>
+					</tr>
+					<tr>
+						<th>CONTENTS</th>
+						<td>
+							<textarea rows="10" cols="50" disabled="true" class="readonly">
+								[[${form.contents}]]
+							</textarea>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div>
+				<button name="register" type="submit">登録</button>
+			</div>
+		</form>
+		<div>
+			<a href="/">戻る</a>
+		</div>
+	</div>
+</body>
+</html>

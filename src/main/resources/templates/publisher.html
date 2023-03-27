@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+	<title>読書管理</title>
+	<style type="text/css">
+	.container {
+		width: 80%;
+		margin-left:auto;
+		margin-right: auto;
+		background-color: #F0FFFF;
+		border: 1px solid grey;
+	}
+	.textbox {
+		width: 30em;
+	}
+	.number{
+		width:5em;
+		text-align: right;
+	}
+	.message {
+		color: red;
+	}
+	.readonly {
+	}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div>
+			<a href="/">戻る</a>
+		</div>
+		<h1>出版社</h1>
+		<form th:action="${action}" method="post" th:object="${form}">
+			<p class="message" th:text="*{message}">
+			<table>
+				<tbody>
+					<tr>
+						<th>ID</th>
+						<td><input type="text" class="textbox" disabled="true" th:field="*{id}"></td>
+					</tr>
+					<tr>
+						<th>出版社名</th>
+						<td><input type="text" class="textbox" th:field="*{name}"></td>
+					</tr>
+					<tr>
+						<th>住所</th>
+						<td>
+							〒<input type="text" class="textbox" style="width:5em;" th:field="*{zip}"><br/>
+							<input type="text" class="textbox" th:field="*{address1}"><br/>
+							<input type="text" class="textbox" th:field="*{address2}"><br/>
+						</td>
+					</tr>
+					<tr>
+						<th>電話</th>
+						<td><input type="text" class="textbox" th:field="*{phone}"></td>
+					</tr>
+					<tr>
+						<th>メール</th>
+						<td><input type="text" class="textbox" th:field="*{email}"></td>
+					</tr>
+				</tbody>
+			</table>
+			<div>
+				<button name="register" type="submit">登録</button>
+			</div>
+		</form>
+		<div>
+			<a href="/">戻る</a>
+		</div>
+	</div>
+<body>

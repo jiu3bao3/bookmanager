@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+	<title></title>
+	<style type="text/css">
+	.container {
+		width: 80%;
+		margin-left:auto;
+		margin-right: auto;
+		background-color: #F0FFFF;
+		border: 1px solid grey;
+	}
+	.cell {
+		border: 1px solid black;
+	}
+	.message {
+		color: red;
+	}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>集計</h1>
+		<div>
+			<a href="/">戻る</a>
+		</div>
+		<div>
+			<form th:action="stats" method="get" th:object="${form}">
+				<p class="message" th:text="*{message}">
+				<div>
+					年月：<input id="txtFrom" class="textbox" type="text" th:field="*{from}">～<input id="txtTo" class="textbox" type="text" th:field="*{to}">
+					<button name="register" type="submit">検索</button>
+				</div>
+			</form>
+			<table>
+				<thead>
+					<tr class="cell">
+						<th class="cell">年月</th>
+						<th class="cell">読書数</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="cell" th:each="result : ${form.summary}"  th:object="${result}">
+						<td class="cell">[[${result.yearMonth}]]</td>
+						<td class="cell" style="text-align:right;">[[${result.count}]]</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div>
+			<a href="/">戻る</a>
+		</div>
+	</div>
+</body>
+</html>

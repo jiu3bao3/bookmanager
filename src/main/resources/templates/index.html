@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+	<title>読書管理</title>
+	<style type="text/css">
+	.container {
+		width: 80%;
+		margin-left:auto;
+		margin-right: auto;
+		background-color: #F0FFFF;
+		border: 1px solid grey;
+	}
+	.cell {
+		border: 1px solid black;
+	}
+	.btn {
+		margin-left:2em;
+		margin-right:2em;
+		width: 5em;
+		height: 2em;
+		font-weight: bold;
+		font-size: 1.5em;
+	}
+	.textbox {
+		width: 20em;
+	}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>一覧</h1>
+		<div>
+			<a href="/">戻る</a>
+		</div>
+		<div>
+			<form th:action="@{/index}" method="post" th:object="${form}">
+				<p th:text="*{message}">
+				<table>
+					<tr>
+						<th>タイトル</th>
+						<td><input type="text" th:field="*{title}" class="textbox"></td>
+					</tr>
+					<tr>
+						<th>著者</th>
+						<td><input type="text" th:field="*{author}" class="textbox"></td>
+					</tr>
+				</table>
+				<div style="text-align:center;">
+					<input type="hidden" name="page" th:value="*{page}">
+					<button name="prev" type="submit" class="btn">←</button>
+					<button name="search" type="submit" class="btn">検索</button>
+					<button name="next" type="submit" class="btn">→</button>
+				</div>
+			</form>
+		</div>
+		<table>
+			<thead>
+				<tr class="cell">
+					<th class="cell" style="width:5em;">ID</th>
+					<th class="cell">タイトル</th>
+					<th class="cell" style="width:10em;">著者</th>
+					<th class="cell" style="width:5em;">出版社</th>
+					<th class="cell" style="width:5em;">出版年</th>
+					<th class="cell" style="width:3em;">編集</th>
+					<th class="cell" style="width:3em;">削除</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="cell" th:each="book : ${bookList}" th:object="${book}">
+					<td th:text="*{id}" class="cell"></td>
+					<td th:text="*{title}" class="cell"></td>
+					<td th:text="*{author}" class="cell"></td>
+					<td th:text="*{publisherName}" class="cell"></td>
+					<td th:text="*{publishedYear}" class="cell"></td>
+					<td class="cell">
+						<a th:href="@{'/' + ${book.id} +'/edit'}">編集</a>
+					</td>
+					<td class="cell">
+						<form th:action="@{'/' + ${book.id} +'/delete'}" method="post">
+							<input type="hidden" name="_method" value="DELETE">
+							<button name="btnDelete" type="submit">削除</button>
+						</form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div>
+			<a href="/">戻る</a>
+		</div>
+	</div>
+</body>
