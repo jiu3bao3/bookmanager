@@ -8,8 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +90,6 @@ public final class BookDao extends AbstractDao<Book>
         Book book = null;
         String sql = "SELECT B.id, B.title, B.authors, B.publisher, B.publisher_id, "
                    + "B.published_on, B.isbn FROM books B WHERE B.id = ?";
-        String sqlExtra = "SELECT note_type, note FROM extra_info EI WHERE EI.book_id = ?";
         try(Connection con = open())
         {
             try(PreparedStatement stmt = con.prepareStatement(sql))
@@ -106,23 +108,17 @@ public final class BookDao extends AbstractDao<Book>
                     }
                 }
             }
-            try(PreparedStatement stmt = con.prepareStatement(sqlExtra))
+            Map<ExtraInfo, String> extraInfo = retrieveExtraInfo(con, id);
+            for(Map.Entry<ExtraInfo, String> entry : extraInfo.entrySet())
             {
-                stmt.setInt(1, id);
-                try(ResultSet results = stmt.executeQuery())
+                switch(entry.getKey())
                 {
-                    while(results.next())
-                    {
-                        switch(ExtraInfo.of(results.getString(1)))
-                        {
-                            case NOTE:
-                                book.setNote(results.getString("note"));
-                                break;
-                            case COONTENTS:
-                                book.setContents(results.getString("note"));
-                                break;
-                        }
-                    }
+                    case NOTE:
+                        book.setNote(entry.getValue());
+                        break;
+                    case COONTENTS:
+                        book.setContents(entry.getValue());
+                        break;
                 }
             }
         }
@@ -131,6 +127,41 @@ public final class BookDao extends AbstractDao<Book>
             throw new RuntimeException(e);
         }
         return book;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 国会図書館書誌情報データ取得
+     * @param con データベースコネクション
+     * @param id bookのID
+     * @return 書誌情報文字列のMap(キー：レコード種別のenum，値：データ文字列）
+     * @throws SQLException データベースエラー
+     */
+    private Map<ExtraInfo, String> retrieveExtraInfo(final Connection con, final int id)
+                                                                           throws SQLException
+    {
+        Map<ExtraInfo, String> map = new HashMap<>();
+        final String SQL = "SELECT note_type, note FROM extra_info EI WHERE EI.book_id = ?";
+        try(PreparedStatement stmt = con.prepareStatement(SQL))
+        {
+            stmt.setInt(1, id);
+            try(ResultSet results = stmt.executeQuery())
+            {
+                while(results.next())
+                {
+                    String type = results.getString(1);
+                    try
+                    {
+                        map.put(ExtraInfo.of(type), results.getString("note"));
+                    }
+                    catch(NoSuchElementException e)
+                    {
+                        logger.warn("extra_infoの不正なレコードです。" + type, e);
+                        continue;
+                    }
+                }
+            }
+        }
+        return map;
     }
     //----------------------------------------------------------------------------------------------
     /**

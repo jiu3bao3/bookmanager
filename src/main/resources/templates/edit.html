@@ -44,8 +44,8 @@
 						<th>出版社</th>
 						<td>
 							<input class="textbox" type="text" th:field="*{publisherName}"><br/>
+							<input class="number" type="text" th:field="*{publisherId}" />
 							<a th:href="@{/publisher/{id}(id=${form.publisherId})}" target="_blank">[[${form.publisherName}]]</a>
-							<input type="hidden" th:field="*{publisherId}" />
 						</td>
 					</tr>
 					<tr>
