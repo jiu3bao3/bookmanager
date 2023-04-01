@@ -3,6 +3,7 @@ package com.jyis.bookmanager.publishers;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jyis.bookmanager.AbstractForm;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -12,9 +13,11 @@ import com.jyis.bookmanager.AbstractForm;
 public class Publisher extends AbstractForm implements Serializable
 {
     /** ID */
+    @JsonProperty("id")
     private Integer id;
 
     /** 出版社名 */
+    @JsonProperty("name")
     private String name;
     
     /** 郵便番号 */
@@ -69,7 +72,7 @@ public class Publisher extends AbstractForm implements Serializable
      * IDを取得する
      * @return ID
      */
-    public Integer getid()
+    public Integer getId()
     {
         return id;
     }
