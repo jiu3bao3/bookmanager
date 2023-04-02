@@ -32,6 +32,7 @@
 		<h1>出版社</h1>
 		<form th:action="${action}" method="post" th:object="${form}">
 			<p class="message" th:text="*{message}">
+			<input type="hidden" name="_method" th:value="${_method}">
 			<table>
 				<tbody>
 					<tr>

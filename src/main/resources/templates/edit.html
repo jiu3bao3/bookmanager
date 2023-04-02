@@ -27,7 +27,7 @@
 	function getPublisherList()
 	{
 		const initialPublisherId = document.getElementById("input_publisher_id").value
-		const URL = "/publishers/index";
+		const URL = "/publisher/index";
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE) {

@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,51 @@ public final class PublisherDao extends AbstractDao<Publisher>
             PreparedStatement stmt = con.prepareStatement(SQL))
         {
             stmt.setInt(1, id);
+            try(ResultSet results = stmt.executeQuery())
+            {
+                if(results.next())
+                {
+                    publisher = new Publisher(results.getString("publisher_name"));
+                    publisher.setId(results.getInt("id"));
+                    publisher.setZip(results.getString("zipcode"));
+                    publisher.setAddress1(results.getString("address1"));
+                    publisher.setAddress2(results.getString("address2"));
+                    publisher.setPhone(results.getString("phone"));
+                    publisher.setEmail(results.getString("email"));
+                }
+            }
+        }
+        catch(SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return publisher;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 名前が一致する出版社を取得する
+     * @param arg 出版社オブジェクト
+     * @return 名前が一致した出版社オブジェクト
+     */
+    public Publisher selectOne(final Publisher arg)
+    {
+        String SQL = "SELECT id, publisher_name, zipcode, address1, address2, phone, email "
+                   + "FROM publishers P WHERE 1 = 1 "
+                   + "AND (P.publisher_name = ? OR 1 = ?)";
+        Publisher publisher = null;
+        try(Connection con = open();
+            PreparedStatement stmt = con.prepareStatement(SQL))
+        {
+            if(arg.getName() != null)
+            {
+                stmt.setString(1, arg.getName());
+                stmt.setInt(2, 0);
+            }
+            else
+            {
+                stmt.setNull(1, Types.NVARCHAR);
+                stmt.setInt(2, 1);
+            }
             try(ResultSet results = stmt.executeQuery())
             {
                 if(results.next())
@@ -103,7 +149,25 @@ public final class PublisherDao extends AbstractDao<Publisher>
     @Override
     public void insert(Publisher arg)
     {
-        throw new UnsupportedOperationException();
+        final String SQL = "INSERT INTO publishers "
+                         + "(publisher_name, zipcode, address1, address2, phone, email) "
+                         + " VALUES (?, ?, ?, ?, ?, ?)";
+        try(Connection con = open();
+            PreparedStatement stmt = con.prepareStatement(SQL))
+        {
+            stmt.setString(1, arg.getName());
+            stmt.setString(2, arg.getZip());
+            stmt.setString(3, arg.getAddress1());
+            stmt.setString(4, arg.getAddress2());
+            stmt.setString(5, arg.getPhone());
+            stmt.setString(6, arg.getEmail());
+            stmt.execute();
+            con.commit();
+        }
+        catch(SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
     //----------------------------------------------------------------------------------------------
     /**
@@ -113,7 +177,27 @@ public final class PublisherDao extends AbstractDao<Publisher>
     @Override
     public void update(Publisher arg)
     {
-        throw new UnsupportedOperationException();
+        final String SQL = "UPDATE publishers SET "
+                         + "publisher_name = ?, zipcode = ?, address1 = ?, "
+                         +  "address2 = ?, phone = ?, email = ? "
+                         + "WHERE id = ?";
+        try(Connection con = open();
+            PreparedStatement stmt = con.prepareStatement(SQL))
+        {
+            stmt.setString(1, arg.getName());
+            stmt.setString(2, arg.getZip());
+            stmt.setString(3, arg.getAddress1());
+            stmt.setString(4, arg.getAddress2());
+            stmt.setString(5, arg.getPhone());
+            stmt.setString(6, arg.getEmail());
+            stmt.setInt(7, arg.getId());
+            stmt.execute();
+            con.commit();
+        }
+        catch(SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
     //----------------------------------------------------------------------------------------------
     /**
@@ -123,6 +207,31 @@ public final class PublisherDao extends AbstractDao<Publisher>
     @Override
     public void delete(Publisher arg)
     {
-        throw new UnsupportedOperationException();
+        deleteById((arg != null) ? arg.getId() : null);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * publishersのレコードをidを使って削除する
+     * @param id publishsersのid
+     * @throws IllegalArgumentException idがnull
+     */
+    public void deleteById(final Integer id)
+    {
+        final String SQL = "DELTE FROM publishers WHERE id = ?";
+        if(id == null)
+        {
+            throw new IllegalArgumentException("idがnullです。");
+        }
+        try(Connection con = open();
+            PreparedStatement stmt = con.prepareStatement(SQL))
+        {
+            stmt.setInt(1, id);
+            stmt.execute();
+            con.commit();
+        }
+        catch(SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

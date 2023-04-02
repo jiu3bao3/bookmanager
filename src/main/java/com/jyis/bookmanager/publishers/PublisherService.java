@@ -46,4 +46,36 @@ public class PublisherService
         return publisherDao.selectAll(form).stream()
                            .collect(Collectors.toMap(p -> p.getId(), p -> p.getName()));
     }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社情報を作成する
+     * @param arg 作成するPublisher情報
+     * @return 作成されたPublisher情報
+     */
+    public Publisher createPublisher(Publisher arg)
+    {
+        Publisher publisher = null;
+        Publisher existingPublisher = publisherDao.selectOne(arg);
+        if(existingPublisher == null)
+        {
+            publisherDao.insert(arg);
+            publisher = publisherDao.selectOne(arg);
+        }
+        else
+        {
+            final String MESSAGE = "id=%dで登録済の出版社です。";
+            publisher = arg;
+            publisher.setMessage(String.format(MESSAGE, existingPublisher.getId()));
+        }
+        return publisher;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社情報を更新する
+     * @param arg 出版社情報オブジェクト
+     */
+    public void updatePublisher(Publisher arg)
+    {
+        publisherDao.update(arg);
+    }
 }

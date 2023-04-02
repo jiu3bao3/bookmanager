@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
 
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,6 +47,7 @@ public class PublisherController
         Publisher publisher = service.selectPublisherById(id);
         logger.info(publisher.toString());
         ModelAndView modelAndView = new ModelAndView("publisher", "form", publisher);
+        modelAndView.addObject("action", String.format("/publisher/%d", publisher.getId()));
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
@@ -53,17 +55,48 @@ public class PublisherController
      * 新規登録画面表示
      * @return 新規登録画面ModelAndView
      */
-    @RequestMapping(value="publishers/new", method=RequestMethod.GET)
+    @RequestMapping(value="publisher/new", method=RequestMethod.GET)
     public ModelAndView newPublisher()
     {
-        return new ModelAndView("publisher", "form", new Publisher());
+        ModelAndView modelAndView = new ModelAndView("publisher", "form", new Publisher());
+        modelAndView.addObject("action", "/publisher/new");
+        return modelAndView;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社を登録する
+     * @param form 出版社フォーム
+     * @return ModelAndView
+     */
+    @RequestMapping(value="publisher/new", method=RequestMethod.POST)
+    public ModelAndView createPublisher(@ModelAttribute Publisher form)
+    {
+        Publisher publisher = service.createPublisher(form);
+        logger.info(publisher.toString());
+        ModelAndView modelAndView = new ModelAndView("publisher", "form", publisher);
+        modelAndView.addObject("action", String.format("/publisher/%d", publisher.getId()));
+        return modelAndView;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社を更新する
+     * @param form 出版社フォーム
+     * @return ModelAndView
+     */
+    @RequestMapping(value="publisher/{id}", method={ RequestMethod.PATCH, RequestMethod.POST })
+    public ModelAndView updatePublisher(@ModelAttribute Publisher publisher)
+    {
+        service.updatePublisher(publisher);
+        ModelAndView modelAndView = new ModelAndView("publisher", "form", publisher);
+        modelAndView.addObject("action", String.format("/publisher/%d", publisher.getId()));
+        return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
     /**
      * 出版社リストをjsonで返す
      * @return jsonのResponseEntity
      */
-    @RequestMapping(value="publishers/index", method=RequestMethod.GET)
+    @RequestMapping(value="publisher/index", method=RequestMethod.GET)
     public ResponseEntity<String> indexPublishers()
     {
         logger.info("indexPublishers() called");
