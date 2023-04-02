@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.jyis.bookmanager.exceptions.DuplicateKeyException;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * 読書記録サービスクラス
@@ -40,9 +42,7 @@ public class BookManagementService
      */
     public Book selectBook(final int id)
     {
-        Book book = dao.selectOne(id);
-        Integer publisherId = book.getPublisherId();
-        return book;
+        return dao.selectOne(id);
     }
     //----------------------------------------------------------------------------------------------
     /**
@@ -60,8 +60,12 @@ public class BookManagementService
      */
     public void registerBook(final BookForm form)
     {
-        Book book = form.toBook();
-        dao.insert(book);
+        if(dao.selectOne(form.getIsbn()) != null)
+        {
+            final String MESSAGE = String.format("登録済の本です。ISBN=%s", form.getIsbn());
+            throw new DuplicateKeyException(MESSAGE);
+        }
+        dao.insert(form.toBook());
     }
     //----------------------------------------------------------------------------------------------
     /**
@@ -77,6 +81,7 @@ public class BookManagementService
         book.setAuthor(form.getAuthor());
         book.setPublishedYear(form.getPublishedYear());
         book.setPublisherName(form.getPublisherName());
+        book.setPublisherId(form.getPublisherId());
         dao.update(book);
     }
 }

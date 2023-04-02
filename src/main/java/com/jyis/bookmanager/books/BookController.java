@@ -123,6 +123,12 @@ public final class BookController
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
+    /**
+     * 読書情報を更新する
+     * @param id 本のID
+     * @param form リクエストForm
+     * @return 画面表示用ModelAndViews
+     */
     @RequestMapping(value="/{id}/update", method={RequestMethod.PATCH, RequestMethod.POST})
     public ModelAndView updateBook(@PathVariable("id") Integer id, @ModelAttribute BookForm form)
     {

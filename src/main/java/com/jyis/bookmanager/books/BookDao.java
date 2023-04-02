@@ -87,25 +87,45 @@ public final class BookDao extends AbstractDao<Book>
      */
     public Book selectOne(final int id)
     {
+        return selectOne(id, null);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * ISBNで本を検索する
+     * @param isbn 本のISBNコード
+     * @return Bookオブジェクト
+     */
+    public Book selectOne(final String isbn)
+    {
+        return selectOne(null, isbn);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * idとISBNで本を検索する
+     * @param id 本のID
+     * @param isbn 本のISBNコード
+     * @return Bookオブジェクト
+     */
+    private Book selectOne(final Integer id, final String isbn)
+    {
         Book book = null;
         String sql = "SELECT B.id, B.title, B.authors, B.publisher, B.publisher_id, "
-                   + "B.published_on, B.isbn FROM books B WHERE B.id = ?";
-        try(Connection con = open())
+                   + "B.published_on, B.isbn FROM books B "
+                   + "WHERE ((B.id = ? or 1 = ?) AND (B.isbn = ? or 1 = ?))";
+        try(Connection con = open();
+            PreparedStatement stmt = con.prepareStatement(sql))
         {
-            try(PreparedStatement stmt = con.prepareStatement(sql))
+            setParameters(stmt, id, isbn);
+            try(ResultSet results = stmt.executeQuery())
             {
-                stmt.setInt(1, id);
-                try(ResultSet results = stmt.executeQuery())
+                if(results.next())
                 {
-                    if(results.next())
-                    {
-                        book = new Book(results.getString("title"), results.getString("authors"));
-                        book.setId(results.getInt("id"));
-                        book.setPublishedYear(results.getInt("published_on"));
-                        book.setIsbn(results.getString("isbn"));
-                        book.setPublisherName(results.getString("publisher"));
-                        book.setPublisherId(results.getInt("publisher_id"));
-                    }
+                    book = new Book(results.getString("title"), results.getString("authors"));
+                    book.setId(results.getInt("id"));
+                    book.setPublishedYear(results.getInt("published_on"));
+                    book.setIsbn(results.getString("isbn"));
+                    book.setPublisherName(results.getString("publisher"));
+                    book.setPublisherId(results.getInt("publisher_id"));
                 }
             }
             Map<ExtraInfo, String> extraInfo = retrieveExtraInfo(con, id);
@@ -130,16 +150,50 @@ public final class BookDao extends AbstractDao<Book>
     }
     //----------------------------------------------------------------------------------------------
     /**
+     * selectOneで用いるSQLステートメントにパラメータをセットする
+     * @param stmt 設定対象のPreparedstatementオブジェクト
+     * @param id BookのID
+     * @param isbn BookのISBNコード
+     */
+    private void setParameters(PreparedStatement stmt, Integer id, String isbn) throws SQLException
+    {
+        if(id != null)
+        {
+            stmt.setInt(1, id);
+            stmt.setInt(2, 0);
+        }
+        else
+        {
+            stmt.setNull(1, Types.INTEGER);
+            stmt.setInt(2, 1);
+        }
+        if(isbn != null)
+        {
+            stmt.setString(3, isbn);
+            stmt.setInt(4, 0);
+        }
+        else
+        {
+            stmt.setNull(3, Types.VARCHAR);
+            stmt.setInt(4, 1);
+        }
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
      * 国会図書館書誌情報データ取得
      * @param con データベースコネクション
      * @param id bookのID
      * @return 書誌情報文字列のMap(キー：レコード種別のenum，値：データ文字列）
      * @throws SQLException データベースエラー
      */
-    private Map<ExtraInfo, String> retrieveExtraInfo(final Connection con, final int id)
+    private Map<ExtraInfo, String> retrieveExtraInfo(final Connection con, final Integer id)
                                                                            throws SQLException
     {
         Map<ExtraInfo, String> map = new HashMap<>();
+        if(id == null)
+        {
+            return map;
+        }
         final String SQL = "SELECT note_type, note FROM extra_info EI WHERE EI.book_id = ?";
         try(PreparedStatement stmt = con.prepareStatement(SQL))
         {
@@ -223,8 +277,8 @@ public final class BookDao extends AbstractDao<Book>
         {
             throw new IllegalArgumentException("BookのIDが設定されていません");
         }
-        String sql = "UPDATE books SET title= ?, authors = ?, isbn= ?, published_on = ? "
-                   + "WHERE id = ?";
+        String sql = "UPDATE books SET title= ?, authors = ?, isbn= ?, published_on = ?, "
+                   + "publisher_id = ? WHERE id = ?";
         try(Connection con = open();
             PreparedStatement stmt = con.prepareStatement(sql))
         {
@@ -239,7 +293,15 @@ public final class BookDao extends AbstractDao<Book>
             {
                  stmt.setInt(4, book.getPublishedYear());
             }
-            stmt.setInt(5, book.getId());
+            if(book.getPublisherId() == null)
+            {
+                stmt.setNull(5, Types.INTEGER);
+            }
+            else
+            {
+                stmt.setInt(5, book.getPublisherId());
+            }
+            stmt.setInt(6, book.getId());
             stmt.executeUpdate();
             con.commit();
         }

@@ -82,7 +82,7 @@
 						<th>出版社</th>
 						<td>
 							<input class="textbox" id="input_publisher_name" type="text" th:field="*{publisherName}"><br/>
-							<input class="number" id="input_publisher_id" type="text" th:field="*{publisherId}" disabled="true" />
+							<input class="number" id="input_publisher_id" type="text" th:field="*{publisherId}" readOnly="true" />
 							<select id="publisher_id_select" style="width: 15em;" onChange="publisher_changed();">
 								<option value=""></option>
 							</select>
