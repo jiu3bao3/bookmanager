@@ -78,4 +78,13 @@ public class PublisherService
     {
         publisherDao.update(arg);
     }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社情報を削除する
+     * @param id 出版社のID
+     */
+    public void deletePublisher(final Integer id)
+    {
+        publisherDao.deleteById(id);
+    }
 }

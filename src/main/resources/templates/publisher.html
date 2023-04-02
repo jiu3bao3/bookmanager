@@ -23,6 +23,27 @@
 	.readonly {
 	}
 	</style>
+	<script type="text/javascript">
+	function deletePublisher() {
+		if(!confirm('削除します。よろしいですか')) return;
+		const URL = "/publisher/" + document.getElementById("publisher_id_text").value;
+		let xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+				if (xmlhttp.status == 200) {
+					let json =  JSON.parse(xmlhttp.responseText);
+					alert(json['message']);
+				} else if (xmlhttp.status == 200) {
+					alert('存在しない出版社情報です');
+				} else {
+					alert(xmlhttp.status + xmlhttp.responseText);
+				}
+			}
+		};
+		xmlhttp.open("DELETE", URL, true);
+		xmlhttp.send();
+	}
+	</script>
 </head>
 <body>
 	<div class="container">
@@ -37,7 +58,7 @@
 				<tbody>
 					<tr>
 						<th>ID</th>
-						<td><input type="text" class="textbox" disabled="true" th:field="*{id}"></td>
+						<td><input type="text" id="publisher_id_text" class="textbox" disabled="true" th:field="*{id}"></td>
 					</tr>
 					<tr>
 						<th>出版社名</th>
@@ -63,6 +84,7 @@
 			</table>
 			<div>
 				<button name="register" type="submit">登録</button>
+				<button name="delete" type="button" onclick="deletePublisher();">削除</button>
 			</div>
 		</form>
 		<div>

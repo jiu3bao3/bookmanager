@@ -217,7 +217,7 @@ public final class PublisherDao extends AbstractDao<Publisher>
      */
     public void deleteById(final Integer id)
     {
-        final String SQL = "DELTE FROM publishers WHERE id = ?";
+        final String SQL = "DELETE FROM publishers WHERE id = ?";
         if(id == null)
         {
             throw new IllegalArgumentException("idがnullです。");

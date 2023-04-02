@@ -101,9 +101,7 @@ public class PublisherController
     {
         logger.info("indexPublishers() called");
         ResponseEntity<String> response = null;
-        HttpHeaders header = new HttpHeaders();
-        header.set(HttpHeaders.CONTENT_TYPE, "application/json");
-        header.setContentLanguage(Locale.JAPANESE);
+        HttpHeaders header = createResponseHeader();
         String json = null;
         try
         {
@@ -119,5 +117,32 @@ public class PublisherController
             response = new ResponseEntity<String>(json, header, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社情報を削除する
+     * @param id 出版社情報のID
+     * @return 処理結果のJSON
+     */
+    @RequestMapping(value="publisher/{id}", method=RequestMethod.DELETE)
+    public ResponseEntity<String> deletePublisher(@PathVariable("id") Integer id)
+    {
+        logger.info(String.format("deletePublishers() called %d", id));
+        ResponseEntity<String> response = null;
+        service.deletePublisher(id);
+        String json = String.format("{ \"message\" : \"%dの出版社を削除しました。\"}", id);
+        return new ResponseEntity<String>(json, createResponseHeader(), HttpStatus.OK);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * JSON用のレスポンスヘッダを作成する
+     * @return JSON用のレスポンスヘッダ
+     */
+    private HttpHeaders createResponseHeader()
+    {
+        HttpHeaders header = new HttpHeaders();
+        header.set(HttpHeaders.CONTENT_TYPE, "application/json");
+        header.setContentLanguage(Locale.JAPANESE);
+        return header;
     }
 }
