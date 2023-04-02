@@ -2,6 +2,7 @@
 package com.jyis.bookmanager.publishers;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 import java.util.Map;
+import java.util.Locale;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * 出版社コントローラ
@@ -63,13 +63,14 @@ public class PublisherController
      * 出版社リストをjsonで返す
      * @return jsonのResponseEntity
      */
-    @ResponseBody
     @RequestMapping(value="publishers/index", method=RequestMethod.GET)
     public ResponseEntity<String> indexPublishers()
     {
+        logger.info("indexPublishers() called");
         ResponseEntity<String> response = null;
         HttpHeaders header = new HttpHeaders();
-        header.set("Content-Type", "application/json");
+        header.set(HttpHeaders.CONTENT_TYPE, "application/json");
+        header.setContentLanguage(Locale.JAPANESE);
         String json = null;
         try
         {
@@ -77,11 +78,12 @@ public class PublisherController
             ObjectMapper mapper = new ObjectMapper();
             json = mapper.writeValueAsString(map);
             response = new ResponseEntity<String>(json, header, HttpStatus.OK);
-            logger.info(json);
         }
         catch(JsonProcessingException e)
         {
             logger.error("JSONシリアライズに失敗しました。", e);
+            json = String.format("{ \"error\" : \"%s\" }", e.getMessage());
+            response = new ResponseEntity<String>(json, header, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
     }

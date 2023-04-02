@@ -23,8 +23,46 @@
 	.readonly {
 	}
 	</style>
+	<script type="text/javascript">
+	function getPublisherList()
+	{
+		const initialPublisherId = document.getElementById("input_publisher_id").value
+		const URL = "/publishers/index";
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+				if (xmlhttp.status == 200) {
+					const select = document.getElementById('publisher_id_select');
+					let json =  JSON.parse(xmlhttp.responseText);
+					Object.keys(json).forEach((key) => {
+						let item = document.createElement('option');
+						item.value = key;
+						item.innerHTML = json[key];
+						if(key == initialPublisherId)
+						{
+							item.selected = true;
+						}
+						select.appendChild(item);
+					});
+				}
+				else
+				{
+					alert('Error' + xmlhttp.responseText);
+				}
+			}
+		};
+		xmlhttp.open("GET", URL, true);
+		xmlhttp.send();
+	}
+	function publisher_changed() {
+		const selecter = document.getElementById('publisher_id_select');
+		document.getElementById('input_publisher_id').value = selecter.options[selecter.selectedIndex].value;
+		document.getElementById('input_publisher_name').value = selecter.options[selecter.selectedIndex].firstChild.textContent;
+		document.getElementById('publisher_link').href = "/publisher/" + selecter.options[selecter.selectedIndex].value
+	}
+	</script>
 </head>
-<body>
+<body onload="getPublisherList();">
 	<div class="container">
 		<h1>編集</h1>
 		<form th:action="${action}" method="post" th:object="${form}">
@@ -43,9 +81,12 @@
 					<tr>
 						<th>出版社</th>
 						<td>
-							<input class="textbox" type="text" th:field="*{publisherName}"><br/>
-							<input class="number" type="text" th:field="*{publisherId}" />
-							<a th:href="@{/publisher/{id}(id=${form.publisherId})}" target="_blank">[[${form.publisherName}]]</a>
+							<input class="textbox" id="input_publisher_name" type="text" th:field="*{publisherName}"><br/>
+							<input class="number" id="input_publisher_id" type="text" th:field="*{publisherId}" disabled="true" />
+							<select id="publisher_id_select" style="width: 15em;" onChange="publisher_changed();">
+								<option value=""></option>
+							</select>
+							<a th:href="@{/publisher/{id}(id=${form.publisherId})}" id="publisher_link" target="_blank">詳細</a>
 						</td>
 					</tr>
 					<tr>
