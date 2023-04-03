@@ -40,7 +40,7 @@ public class StatsDao extends AbstractDao<MonthlyCount>
         String to = (statsForm.getTo() != null) ? statsForm.getTo() : "999912";
         List<MonthlyCount> list = new ArrayList<>();
         final String SQL = "SELECT year_month, cnt FROM v_monthly_total "
-                         + "WHERE year_month BETWEEN ? AND ?";
+                         + "WHERE year_month BETWEEN ? AND ? ORDER BY year_month DESC";
         try(Connection con = open();
             PreparedStatement stmt = con.prepareStatement(SQL))
         {

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * 出版社コントローラ
@@ -94,18 +95,20 @@ public class PublisherController
     //----------------------------------------------------------------------------------------------
     /**
      * 出版社リストをjsonで返す
+     * @param searchWord 検索ワード
      * @return jsonのResponseEntity
      */
     @RequestMapping(value="publisher/index", method=RequestMethod.GET)
-    public ResponseEntity<String> indexPublishers()
+    public ResponseEntity<String> indexPublishers(@RequestParam(name="searchWord", required=false)
+                                                                                 String searchWord)
     {
-        logger.info("indexPublishers() called");
+        logger.info(String.format("indexPublishers() called with %s", searchWord));
         ResponseEntity<String> response = null;
         HttpHeaders header = createResponseHeader();
         String json = null;
         try
         {
-            Map<Integer, String> map = service.selectAll(null);
+            Map<Integer, String> map = service.selectAll(new SearchForm(searchWord));
             ObjectMapper mapper = new ObjectMapper();
             json = mapper.writeValueAsString(map);
             response = new ResponseEntity<String>(json, header, HttpStatus.OK);

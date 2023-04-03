@@ -27,12 +27,15 @@
 	function getPublisherList()
 	{
 		const initialPublisherId = document.getElementById("input_publisher_id").value
-		const URL = "/publisher/index";
+		const BASE_URL = "/publisher/index";
+		let search_word = document.getElementById('input_publisher_search').value;
+		let url = (search_word.length > 0) ? (BASE_URL + "?searchWord=" + encodeURI(search_word)) : BASE_URL;
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE) {
 				if (xmlhttp.status == 200) {
 					const select = document.getElementById('publisher_id_select');
+					select.options.length = 0;
 					let json =  JSON.parse(xmlhttp.responseText);
 					Object.keys(json).forEach((key) => {
 						let item = document.createElement('option');
@@ -51,7 +54,7 @@
 				}
 			}
 		};
-		xmlhttp.open("GET", URL, true);
+		xmlhttp.open("GET", url, true);
 		xmlhttp.send();
 	}
 	function publisher_changed() {
@@ -59,6 +62,9 @@
 		document.getElementById('input_publisher_id').value = selecter.options[selecter.selectedIndex].value;
 		document.getElementById('input_publisher_name').value = selecter.options[selecter.selectedIndex].firstChild.textContent;
 		document.getElementById('publisher_link').href = "/publisher/" + selecter.options[selecter.selectedIndex].value
+	}
+	function search() {
+		getPublisherList();
 	}
 	</script>
 </head>
@@ -83,6 +89,7 @@
 						<td>
 							<input class="textbox" id="input_publisher_name" type="text" th:field="*{publisherName}"><br/>
 							<input class="number" id="input_publisher_id" type="text" th:field="*{publisherId}" readOnly="true" />
+							<input class="textbox" id="input_publisher_search" type="text" style="width:5em;" onChange="search();" />
 							<select id="publisher_id_select" style="width: 15em;" onChange="publisher_changed();">
 								<option value=""></option>
 							</select>

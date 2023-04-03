@@ -116,23 +116,36 @@ public final class PublisherDao extends AbstractDao<Publisher>
     @Override
     public List<Publisher> selectAll(AbstractForm form)
     {
+        SearchForm searchForm = (form instanceof SearchForm) ? (SearchForm)form : new SearchForm();
         String SQL = "SELECT id, publisher_name, zipcode, address1, address2, phone, email "
-                   + "FROM publishers P WHERE 1 = 1";
+                   + "FROM publishers P WHERE 1 = 1 AND (publisher_name LIKE ? OR 1 = ?)";
         List<Publisher> list = new ArrayList<>();
         try(Connection con = open();
-            PreparedStatement stmt = con.prepareStatement(SQL);
-            ResultSet results = stmt.executeQuery())
+            PreparedStatement stmt = con.prepareStatement(SQL))
         {
-            while(results.next())
+            if(searchForm.getSearchWord() == null)
             {
-                Publisher publisher = new Publisher(results.getString("publisher_name"));
-                publisher.setId(results.getInt("id"));
-                publisher.setZip(results.getString("zipcode"));
-                publisher.setAddress1(results.getString("address1"));
-                publisher.setAddress2(results.getString("address2"));
-                publisher.setPhone(results.getString("phone"));
-                publisher.setEmail(results.getString("email"));
-                list.add(publisher);
+                stmt.setNull(1, Types.NVARCHAR);
+                stmt.setInt(2, 1);
+            }
+            else
+            {
+                stmt.setString(1, String.format("%%%s%%", searchForm.getSearchWord()));
+                stmt.setInt(2, 0);
+            }
+            try(ResultSet results = stmt.executeQuery())
+            {
+                while(results.next())
+                {
+                    Publisher publisher = new Publisher(results.getString("publisher_name"));
+                    publisher.setId(results.getInt("id"));
+                    publisher.setZip(results.getString("zipcode"));
+                    publisher.setAddress1(results.getString("address1"));
+                    publisher.setAddress2(results.getString("address2"));
+                    publisher.setPhone(results.getString("phone"));
+                    publisher.setEmail(results.getString("email"));
+                    list.add(publisher);
+                }
             }
         }
         catch(SQLException e)
