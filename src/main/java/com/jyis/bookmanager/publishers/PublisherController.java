@@ -80,8 +80,8 @@ public class PublisherController
     //----------------------------------------------------------------------------------------------
     /**
      * 出版社を更新する
-     * @param form 出版社フォーム
-     * @return ModelAndView
+     * @param publisher 出版社フォーム
+     * @return 出版社ModelAndView
      */
     @RequestMapping(value="publisher/{id}", method={ RequestMethod.PATCH, RequestMethod.POST })
     public ModelAndView updatePublisher(@ModelAttribute Publisher publisher)

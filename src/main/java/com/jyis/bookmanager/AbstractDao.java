@@ -97,7 +97,7 @@ public abstract class AbstractDao<T>
     //----------------------------------------------------------------------------------------------
     /**
      * offsetを計算する
-     * @param arg pageNo ページの番号
+     * @param pageNo pageNo ページの番号
      * @return offset
      */
     protected int calcOffset(final int pageNo)

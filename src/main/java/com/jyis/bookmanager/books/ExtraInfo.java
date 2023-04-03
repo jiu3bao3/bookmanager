@@ -10,7 +10,9 @@ import java.util.stream.Stream;
  */
 public enum ExtraInfo
 {
+    /** 備考 */
     NOTE("03"),
+    /** 内容 */
     COONTENTS("04");
     
     /** DBに格納されている値 */

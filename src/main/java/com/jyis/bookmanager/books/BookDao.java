@@ -34,7 +34,7 @@ public final class BookDao extends AbstractDao<Book>
     //----------------------------------------------------------------------------------------------
     /**
      * Bookの一覧を取得する
-     * @paaram form 検索フォーム
+     * @param arg 検索フォーム
      * @return 検索結果のList
      */
     @Override

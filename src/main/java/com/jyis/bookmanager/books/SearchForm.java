@@ -77,6 +77,7 @@ public final class SearchForm extends AbstractForm implements Serializable
     //----------------------------------------------------------------------------------------------
     /** 
      * タイトルをセットする
+     * @param arg タイトル
      */
     public void setTitle(final String arg)
     {
@@ -85,6 +86,7 @@ public final class SearchForm extends AbstractForm implements Serializable
     //----------------------------------------------------------------------------------------------
     /**
      * タイトルを取得する
+     * @return タイトル
      */
     public String getTitle()
     {
@@ -200,7 +202,7 @@ public final class SearchForm extends AbstractForm implements Serializable
     //----------------------------------------------------------------------------------------------
     /**
      * 次のページボタンをセットする
-     * @return 次のページボタン
+     * @param arg 次のページボタン
      */
     public void setNext(final String arg)
     {

@@ -41,6 +41,7 @@ public final class BookController
     //----------------------------------------------------------------------------------------------
     /** 
      * ルート
+     * @return トップページ用ModelAndView
      */
     @RequestMapping(value="/", method=RequestMethod.GET)
     public ModelAndView welcome()
@@ -48,6 +49,10 @@ public final class BookController
         return new ModelAndView("welcome");
     }
     //----------------------------------------------------------------------------------------------
+    /**
+     * 一覧画面表氏
+     * @return 一覧画面用ModelAndView
+     */
     @RequestMapping(value="/index", method=RequestMethod.GET)
     public ModelAndView index()
     {
@@ -94,6 +99,11 @@ public final class BookController
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
+    /**
+     * 新規登録実行
+     * @param form 登録情報Form
+     * @return 編集画面ModelAndView
+     */
     @RequestMapping(value="/new", method=RequestMethod.POST)
     public ModelAndView createBook(@ModelAttribute BookForm form)
     {
@@ -112,6 +122,11 @@ public final class BookController
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
+    /**
+     * 編集画面を表示する
+     * @param id BookのID
+     * @return 編集画面ModelAndView
+     */
     @RequestMapping(value="/{id}/edit", method=RequestMethod.GET)
     public ModelAndView editBook(@PathVariable("id") Integer id)
     {
@@ -150,6 +165,7 @@ public final class BookController
     /**
      * 読書記録を削除する
      * @param id 削除対象のID
+     * @return  一覧画面ModelAndView
      */
     @RequestMapping(value="/{id}/delete", method={RequestMethod.DELETE, RequestMethod.POST})
     public ModelAndView deleteBook(@PathVariable("id") Integer id)

@@ -13,7 +13,7 @@ import com.jyis.bookmanager.exceptions.ValidationException;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * 本フォーム(追加／更新用)
- * @auhtor 久保　由仁
+ * @author 久保　由仁
  */
 public class BookForm extends AbstractBook implements Serializable
 {
@@ -62,7 +62,7 @@ public class BookForm extends AbstractBook implements Serializable
     //----------------------------------------------------------------------------------------------
     /**
      * バリデーションを行う
-     * @raise ValidationException バリデーションエラーを検出
+     * @throws ValidationException バリデーションエラーを検出
      */
     public void validate()
     {
