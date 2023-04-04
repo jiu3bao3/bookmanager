@@ -1,6 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.jyis.bookmanager.stats;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+import java.util.List;
+
 import com.jyis.bookmanager.AbstractForm;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -10,48 +12,63 @@ import com.jyis.bookmanager.AbstractForm;
 public final class MonthlyCount extends AbstractForm
 {
     /** 年月 */
-    private String yearMonth;
+    private String year;
     
     /** 冊数 */
-    private Integer count;
+    private List<Integer> count;
+    
+    /** 合計冊数 */
+    private Integer total;
     //----------------------------------------------------------------------------------------------
     /** デフォルトコンストラクタ */
     public MonthlyCount() {}
     //----------------------------------------------------------------------------------------------
     /**
      * コンストラクタ
-     * @param yearMonth 年月
+     * @param year 年月
      * @param count 冊数
      */
-    public MonthlyCount(final String yearMonth, final Integer count)
+    public MonthlyCount(final String year, final List<Integer> count)
     {
-        this.yearMonth = yearMonth;
+        this.year = year;
         this.count = count;
     }
     //----------------------------------------------------------------------------------------------
     /**
-     * yearMonth を取得する
-     * @return yearMonth
+     * コンストラクタ
+     * @param year 年月
+     * @param count 冊数
+     * @param total 合計冊数
      */
-    public String getYearMonth()
+    public MonthlyCount(final String year, final List<Integer> count, Integer total)
     {
-        return yearMonth;
+        this(year, count);
+        this.total = total;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * year を取得する
+     * @return year
+     */
+    public String getYear()
+    {
+        return year;
     }
     //----------------------------------------------------------------------------------------------
     /**
      * yearMonth を設定する
      * @param arg yearMonth
      */
-    public void setYearMonth(final String arg)
+    public void setYear(final String arg)
     {
-        yearMonth = arg;
+        year = arg;
     }
     //----------------------------------------------------------------------------------------------
     /**
      * count を取得する
      * @return count
      */
-    public Integer getCount()
+    public List<Integer> getCount()
     {
         return count;
     }
@@ -60,8 +77,26 @@ public final class MonthlyCount extends AbstractForm
      * count を設定する
      * @param arg count
      */
-    public void setCount(final Integer arg)
+    public void setCount(final List<Integer> arg)
     {
         count = arg;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 合計を取得する
+     * @return 合計
+     */
+    public Integer getTotal()
+    {
+        return total;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 合計をセットする
+     * @param arg 合計
+     */
+    public void setTotal(final Integer arg)
+    {
+        total = arg;
     }
 }

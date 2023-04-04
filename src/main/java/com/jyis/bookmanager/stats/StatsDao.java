@@ -39,8 +39,11 @@ public class StatsDao extends AbstractDao<MonthlyCount>
         String from = (statsForm.getFrom() != null) ? statsForm.getFrom() : "000001";
         String to = (statsForm.getTo() != null) ? statsForm.getTo() : "999912";
         List<MonthlyCount> list = new ArrayList<>();
-        final String SQL = "SELECT year_month, cnt FROM v_monthly_total "
-                         + "WHERE year_month BETWEEN ? AND ? ORDER BY year_month DESC";
+        final String SQL = "SELECT * FROM ( SELECT SUBSTRING(V.YEAR_MONTH, 1,4) AS YEAR, "
+                         + "SUBSTRING(V.YEAR_MONTH, 5,2)AS MON, V.CNT FROM V_MONTHLY_TOTAL V "
+                         + "WHERE V.YEAR_MONTH BETWEEN ? AND ? ) M PIVOT"
+                         + " (SUM(CNT) FOR MON IN ([01],[02],[03],[04],[05],[06],[07],"
+                         + "[08],[09],[10],[11],[12])) AS pv ORDER BY YEAR DESC";
         try(Connection con = open();
             PreparedStatement stmt = con.prepareStatement(SQL))
         {
@@ -50,9 +53,16 @@ public class StatsDao extends AbstractDao<MonthlyCount>
             {
                 while(results.next())
                 {
-                    String yearMonth = results.getString("year_month");
-                    Integer count = results.getInt("cnt");
-                    list.add(new MonthlyCount(yearMonth, count));
+                    String year = results.getString("year");
+                    List<Integer> countList = new ArrayList<>();
+                    int total = 0;
+                    for(int month = 0; month < 12; month++)
+                    {
+                        int value = results.getInt(month + 2);
+                        total += value;
+                        countList.add((value == 0 && results.wasNull()) ? null : value);
+                    }
+                    list.add(new MonthlyCount(year, countList, total));
                 }
             }
         }

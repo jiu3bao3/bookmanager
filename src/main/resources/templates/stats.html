@@ -12,6 +12,7 @@
 	}
 	.cell {
 		border: 1px solid black;
+		width: 3em;
 	}
 	.message {
 		color: red;
@@ -35,14 +36,27 @@
 			<table>
 				<thead>
 					<tr class="cell">
-						<th class="cell">年月</th>
-						<th class="cell">読書数</th>
+						<th class="cell">年</th>
+						<th class="cell">1月</th>
+						<th class="cell">2月</th>
+						<th class="cell">3月</th>
+						<th class="cell">4月</th>
+						<th class="cell">5月</th>
+						<th class="cell">6月</th>
+						<th class="cell">7月</th>
+						<th class="cell">8月</th>
+						<th class="cell">9月</th>
+						<th class="cell">10月</th>
+						<th class="cell">11月</th>
+						<th class="cell">12月</th>
+						<th class="cell">合計</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr class="cell" th:each="result : ${form.summary}"  th:object="${result}">
-						<td class="cell">[[${result.yearMonth}]]</td>
-						<td class="cell" style="text-align:right;">[[${result.count}]]</td>
+						<td class="cell" style="width:5em;">[[${result.year}]]年</td>
+						<td class="cell" th:each="cnt : ${result.count}" th:object="${cnt}" style="text-align:right;">[[${cnt}]]</td>
+						<td class="cell" style="text-align:right; font-weight:bold;">[[${result.total}]]</td>
 					</tr>
 				</tbody>
 			</table>
