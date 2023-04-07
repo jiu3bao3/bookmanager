@@ -168,6 +168,10 @@ public final class SearchForm extends AbstractForm implements Serializable
         return (page == null) ? 0 : page;
     }
     //----------------------------------------------------------------------------------------------
+    /**
+     * 検索ボタンをセットする
+     * @param arg 検索ボタン
+     */
     public void setSearch(final String arg)
     {
         search = arg;
