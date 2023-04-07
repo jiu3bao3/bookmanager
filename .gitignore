@@ -36,3 +36,4 @@ logs/
 src/main/resources/application.properties
 動かし方.txt
 launch.bat
+lib/
