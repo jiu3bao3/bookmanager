@@ -50,12 +50,20 @@ public abstract class AbstractBook extends AbstractForm implements Serializable
             return false;
         }
         int summary = 0;
-        for(int i = 0; i < (ISBN13_LENGTH - 1); i++)
+        int lastDigit = 0;
+        try
         {
-            int digit = Integer.parseInt(String.valueOf(isbn.charAt(i)));
-            summary += digit * ((i % 2 == 0) ? 1 : 3);
+            for(int i = 0; i < (ISBN13_LENGTH - 1); i++)
+            {
+                int digit = Integer.parseInt(String.valueOf(isbn.charAt(i)));
+                summary += digit * ((i % 2 == 0) ? 1 : 3);
+            }
+            lastDigit = Integer.parseInt(String.valueOf(isbn.charAt(ISBN13_LENGTH - 1)));
         }
-        int lastDigit = Integer.parseInt(String.valueOf(isbn.charAt(ISBN13_LENGTH - 1)));
+        catch(NumberFormatException e)
+        {
+            return false;
+        }
         return (10 - (summary % 10)) == lastDigit;
     }
     //----------------------------------------------------------------------------------------------
