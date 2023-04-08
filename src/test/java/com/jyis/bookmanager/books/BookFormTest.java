@@ -71,6 +71,43 @@ public class BookFormTest
     }
     //----------------------------------------------------------------------------------------------
     /**
+     * 不正なISBNをセットした場合にValidationExceptionがスローされること
+     */
+    @Test
+    public void validateIsbnTest() throws Exception
+    {
+        final String MESSAGE = "正しいISBNをセットした場合にValidationExceptionがスローされないこと";
+        BookForm form = createForm();
+        form.setIsbn(ISBN);
+        Assertions.assertDoesNotThrow(() -> form.validate(), MESSAGE);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版年が未来の年の場合にValidationExceptionがスローされること
+     */
+    @Test
+    public void validateYearForInvalidTest() throws Exception
+    {
+        BookForm form = createForm();
+        form.setPublishedYear(Calendar.getInstance().get(Calendar.YEAR) + 1);
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+             form.validate();
+        });
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 正しい出版年でValidationExceptionがスローされないこと
+     */
+    @Test
+    public void validateYearTest() throws Exception
+    {
+        final String MESSAGE = "正しい出版年でValidationExceptionがスローされないこと";
+        BookForm form = createForm();
+        form.setPublishedYear(Calendar.getInstance().get(Calendar.YEAR));
+        Assertions.assertDoesNotThrow(() -> form.validate(), MESSAGE);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
      * テスト用のBookオブジェクトを作成する
      * @return Bookオブジェクト
      */
