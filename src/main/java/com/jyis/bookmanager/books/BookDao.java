@@ -27,7 +27,7 @@ import com.jyis.bookmanager.AbstractForm;
  * @author 久保　由仁
  */
 @Component
-public final class BookDao extends AbstractDao<Book>
+public class BookDao extends AbstractDao<Book>
 {
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(BookDao.class);
@@ -106,7 +106,7 @@ public final class BookDao extends AbstractDao<Book>
      * @param isbn 本のISBNコード
      * @return Bookオブジェクト
      */
-    private Book selectOne(final Integer id, final String isbn)
+    protected Book selectOne(final Integer id, final String isbn)
     {
         Book book = null;
         String sql = "SELECT B.id, B.title, B.authors, B.publisher, B.publisher_id, "
@@ -155,7 +155,7 @@ public final class BookDao extends AbstractDao<Book>
      * @param id BookのID
      * @param isbn BookのISBNコード
      */
-    private void setParameters(PreparedStatement stmt, Integer id, String isbn) throws SQLException
+    protected void setParameters(PreparedStatement stmt, Integer id, String isbn) throws SQLException
     {
         if(id != null)
         {

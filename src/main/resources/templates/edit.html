@@ -36,6 +36,7 @@
 				if (xmlhttp.status == 200) {
 					const select = document.getElementById('publisher_id_select');
 					select.options.length = 0;
+					let count = 0;
 					let json =  JSON.parse(xmlhttp.responseText);
 					Object.keys(json).forEach((key) => {
 						let item = document.createElement('option');
@@ -46,7 +47,11 @@
 							item.selected = true;
 						}
 						select.appendChild(item);
+						count += 1;
 					});
+					if(count == 1) {
+						publisher_changed();
+					}
 				}
 				else
 				{

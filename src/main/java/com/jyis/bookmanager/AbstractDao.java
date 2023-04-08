@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  * @author 久保　由仁
  */
 @Component
-public abstract class AbstractDao<T>
+public abstract class AbstractDao<T> implements IDao<T>
 {
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(AbstractDao.class);

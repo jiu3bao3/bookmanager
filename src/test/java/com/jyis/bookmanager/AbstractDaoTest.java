@@ -42,22 +42,3 @@ public class AbstractDaoTest
         }
     }
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * AbstractDaoのテスト用実装
- */
-@Component
-class AbstractDaoImpl extends AbstractDao<Object>
-{
-    public List<Object> selectAll(AbstractForm form)
-    {
-        return new ArrayList<Object>();
-    }
-    public Object selectOne(int id)
-    {
-        return null;
-    }
-    public void insert(Object arg) {}
-    public void update(Object arg) {}
-    public void delete(Object arg) {}
-}
