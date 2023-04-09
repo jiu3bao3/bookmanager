@@ -10,6 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -24,9 +25,37 @@ import com.jyis.bookmanager.AbstractDaoImpl;
 @SpringBootTest
 public class BookDaoTest
 {
+    /** テーブルクリア用SQL */
+    private static final String[] CLEAR_SQL = {
+         "DELETE FROM read_books",
+         "DELETE FROM extra_info",
+         "DELETE FROM books",
+         "DELETE FROM publishers" };
+         
     /** テスト用ISBN */
     private static final String TEST_ISBN = "9784000072151";
     //----------------------------------------------------------------------------------------------
+    /**
+     * 後始末
+     */
+    @AfterEach
+    public void clearData() throws Exception
+    {
+        BookDaoMock dao = new BookDaoMock();
+        try(Connection con = dao.open();
+            Statement stmt = con.createStatement())
+        {
+            for(String sql : CLEAR_SQL)
+            {
+                stmt.execute(sql);
+            }
+            con.commit();
+        }
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * データベース接続
+     */
     @Test
     public void openTest() throws Exception
     {
@@ -37,6 +66,9 @@ public class BookDaoTest
         }
     }
     //----------------------------------------------------------------------------------------------
+    /**
+     * データ登録
+     */
     @Test
     public void insertTest() throws Exception
     {
@@ -56,6 +88,61 @@ public class BookDaoTest
         Assertions.assertTrue(count > 0);
     }
     //----------------------------------------------------------------------------------------------
+    /**
+     * ISBNで検索できること
+     */
+    @Test
+    public void selectOneWithIsbnTest() throws Exception
+    {
+        BookDao dao = new BookDaoMock();
+        dao.insert(createBook());
+        Book book = dao.selectOne(TEST_ISBN);
+        Assertions.assertEquals(book.getTitle(), "吾輩は猫である");
+        Assertions.assertEquals(book.getAuthor(), "夏目漱石");
+        Assertions.assertEquals(book.getIsbn(), TEST_ISBN);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 更新が実行できること
+     */
+    @Test
+    public void updateTest() throws Exception
+    {
+        final String NEW_TITLE = "わがはいはねこである";
+        BookDao dao = new BookDaoMock();
+        dao.insert(createBook());
+        Book book = dao.selectOne(TEST_ISBN);
+        book.setTitle(NEW_TITLE);
+        dao.update(book);
+        Book reselectBook = dao.selectOne(TEST_ISBN);
+        Assertions.assertEquals(book.getTitle(), NEW_TITLE);
+        Assertions.assertEquals(book.getIsbn(), TEST_ISBN);
+    }
+    //----------------------------------------------------------------------------------------------
+    @Test
+    public void deleteTest() throws Exception
+    {
+        BookDao dao = new BookDaoMock();
+        dao.insert(createBook());
+        Book book = dao.selectOne(TEST_ISBN);
+        dao.delete(book);
+        int count = 0;
+        try(Connection con = ((BookDaoMock)dao).open();
+            Statement stmt = con.createStatement())
+        {
+            ResultSet result = stmt.executeQuery("SELECT COUNT(*) FROM books");
+            if(result.next())
+            {
+                count = result.getInt(1);
+            }
+        }
+        Assertions.assertTrue(count == 0);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * テスト用のBookオブジェクトを作成する
+     * @return Bookオブジェクト
+     */
     private Book createBook()
     {
         Book book = new Book("吾輩は猫である", "夏目漱石");
@@ -66,29 +153,13 @@ public class BookDaoTest
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * テスト用のBookDao
+ */
 class BookDaoMock extends BookDao implements IDao<Book>
 {
+    /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(BookDaoMock.class);
-    @Override
-    public List<Book> selectAll(AbstractForm arg)
-    {
-        return null;
-    }
-    public void delete(final Book book)
-    {
-    }
-    public void update(final Book book)
-    {
-    }
-    @Override
-    public Book selectOne(final int id)
-    {
-        return null;
-    }
-    protected Book selectOne(final Integer id, final String isbn)
-    {
-        return null;
-    }
     //----------------------------------------------------------------------------------------------
     /**
      * テスト用のデータベースコネクションを作成する

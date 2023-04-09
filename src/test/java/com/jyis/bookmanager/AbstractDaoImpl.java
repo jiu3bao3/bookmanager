@@ -15,8 +15,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import  org.sqlite.Function;
-
+import org.sqlite.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,22 +29,23 @@ public final class AbstractDaoImpl<T> extends AbstractDao<T> implements IDao<T>
 {
     /** テストデータベースファイルのパス */
     public static final String SQLITE_FILE_PATH = "target/test.db";
-
+    
     /** テーブル定義SQL */
     private static final String[] SQL_SCHEMAS = {
-                       "CREATE TABLE IF NOT EXISTS books(ID number, ISBN string, "
-                       + "TITLE string, AUTHORS string, PUBLISHER string, PUBLISHER_ID number,"
-                       + "PUBLISHED_ON number, LANGUAGE_ID number, "
-                       + "CONSTRAINT PK_BOOKS PRIMARY KEY(ID))",
-                       
-                       "CREATE TABLE IF NOT EXISTS read_books(id number, book_id number, "
-                       + "read_on date, note string, CONSTRAINT PK_READ_BOOKS PRIMARY KEY(ID))",
-                       "CREATE TABLE IF NOT EXISTS PUBLISHERS (ID number, PUBLISHER_NAME string, "
-                       
-                       + "ZIPCODE string, ADDRESS1 string, ADDRESS2 string,PHONE string,"
-                       + " EMAIL string, NOTE text, CONSTRAINT PK_PUBLISHERS PRIMARY KEY(ID))"
+                     "CREATE TABLE IF NOT EXISTS books(ID INTEGER PRIMARY KEY AUTOINCREMENT, "
+                     + "ISBN string, TITLE string, AUTHORS string, PUBLISHER string, "
+                     + "PUBLISHER_ID number, PUBLISHED_ON number, LANGUAGE_ID number)",
+                     
+                     "CREATE TABLE IF NOT EXISTS read_books(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                     + " book_id number, read_on date, note string)",
+                     
+                     "CREATE TABLE IF NOT EXISTS PUBLISHERS(ID INTEGER PRIMARY KEY AUTOINCREMENT,"
+                     + "PUBLISHER_NAME string, ZIPCODE string, ADDRESS1 string, ADDRESS2 string,"
+                     + "PHONE string, EMAIL string, NOTE text)",
+                     
+                     "CREATE TABLE IF NOT EXISTS EXTRA_INFO(ID INTEGER PRIMARY KEY AUTOINCREMENT,"
+                     + "BOOK_ID NUMBER, NOTE_TYPE STRING, NOTE STRING)"
     };
-
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(AbstractDaoImpl.class);
     //----------------------------------------------------------------------------------------------
