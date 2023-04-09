@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  * @author 久保　由仁
  */
 @Component
-public class AbstractDaoImpl<T> extends AbstractDao<T> implements IDao<T>
+public final class AbstractDaoImpl<T> extends AbstractDao<T> implements IDao<T>
 {
     /** テストデータベースファイルのパス */
     public static final String SQLITE_FILE_PATH = "target/test.db";
@@ -59,7 +59,7 @@ public class AbstractDaoImpl<T> extends AbstractDao<T> implements IDao<T>
         try
         {
             Class.forName("org.sqlite.JDBC");
-            con = DriverManager.getConnection(String.format("jdbc:sqlite:%s", SQLITE_FILE_PATH);
+            con = DriverManager.getConnection(String.format("jdbc:sqlite:%s", SQLITE_FILE_PATH));
             con.setAutoCommit(false);
         }
         catch(SQLException |ClassNotFoundException e)
