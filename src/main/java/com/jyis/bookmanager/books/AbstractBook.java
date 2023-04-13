@@ -64,7 +64,7 @@ public abstract class AbstractBook extends AbstractForm implements Serializable
         {
             return false;
         }
-        return (10 - (summary % 10)) == lastDigit;
+        return (10 - (summary % 10)) % 10 == lastDigit;
     }
     //----------------------------------------------------------------------------------------------
     /**

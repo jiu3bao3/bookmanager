@@ -18,12 +18,12 @@ public class AbstractBookTest
     /**
      * 正しいISBNを正しいと判定する
      */
-    @Test
-    public void isValidIsbn13WithValidIsbnTest() throws Exception
+    @ParameterizedTest
+    @ValueSource(strings = {"9784807609260", "9784815615499"})
+    public void isValidIsbn13WithValidIsbnTest(String isbn) throws Exception
     {
         final String MESSAGE = "正しいISBNを正しいと判定する";
-        final String VALID_ISBN = "9784815615499";
-        Assertions.assertTrue(AbstractBookImpl.isValidIsbn13(VALID_ISBN), MESSAGE);
+        Assertions.assertTrue(AbstractBookImpl.isValidIsbn13(isbn), MESSAGE);
     }
     //----------------------------------------------------------------------------------------------
     /**
