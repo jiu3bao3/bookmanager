@@ -1,6 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.jyis.bookmanager.stats;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +42,7 @@ public final class StatsController
             form.validate();
             form = new StatsForm(form);
             form.setSummary(statsDao.selectAll(form));
+            summarize(form);
         }
         catch(Exception e)
         {
@@ -47,5 +50,17 @@ public final class StatsController
             form.setMessage(e.getMessage());
         }
         return new ModelAndView("stats", "form", form);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 総計の計算を行う
+     * @param form 検索フォーム
+     */
+    private void summarize(StatsForm form)
+    {
+        if(form == null) return;
+        int total = form.getSummary().stream()
+                                    .collect(Collectors.summingInt(MonthlyCount::getTotal));
+        form.setMessage(String.format("総計：%d", total));
     }
 }

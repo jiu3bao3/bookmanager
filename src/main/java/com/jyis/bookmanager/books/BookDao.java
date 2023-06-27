@@ -232,7 +232,14 @@ public class BookDao extends AbstractDao<Book>
         {
             try(PreparedStatement stmt = con.prepareStatement(sql1))
             {
-                stmt.setString(1, book.getIsbn());
+                if(book.getIsbn() == null || book.getIsbn().equals(""))
+                {
+                    stmt.setNull(1, Types.CHAR);
+                }
+                else
+                {
+                    stmt.setString(1, book.getIsbn());
+                }
                 stmt.setString(2, book.getTitle());
                 stmt.setString(3, book.getAuthor());
                 stmt.setString(4, book.getPublisherName());
