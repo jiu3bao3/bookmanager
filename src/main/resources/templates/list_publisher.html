@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="https://www.thymeleaf.org">
+<html xmlns:th="https://www.thymeleaf.org" lang="ja">
 <head>
 	<title>読書管理</title>
 	<style type="text/css">
@@ -30,7 +30,9 @@
 	<div class="container">
 		<h1>出版社一覧</h1>
 		<div>
-			<a href="/">戻る</a>
+			<span><a href="/">戻る</a></span>
+			<span style="width: 5em;">&nbsp;</span>
+			<span><a href="/publisher/new">新規登録</a></span>
 		</div>
 		<div>
 			<table>
@@ -46,7 +48,7 @@
 				<tbody>
 					<tr th:each="publisher : ${publisherList}" th:object="${publisher}">
 						<td th:text="*{id}" class="cell"></td>
-						<td th:text="*{name}" class="cell"></td>
+						<td class="cell"><a th:href="@{/publisher/{id}(id=*{id})}"><span th:text="*{name}"></span></a></td>
 						<td th:text="*{zip}" class="cell"></td>
 						<td class="cell"><span th:text="*{address1}"></span>　<span th:text="*{address2}"></span></td>
 						<td th:text="*{phone}" class="cell"></td>
@@ -55,7 +57,9 @@
 			</table>
 		</div>
 		<div>
-			<a href="/">戻る</a>
+			<span><a href="/">戻る</a></span>
+			<span style="width: 5em;">&nbsp;</span>
+			<span><a href="/publisher/new">新規登録</a></span>
 		</div>
 	</div>
 </body>
