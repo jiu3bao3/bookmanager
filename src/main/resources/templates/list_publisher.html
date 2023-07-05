@@ -30,13 +30,26 @@
 	<div class="container">
 		<h1>出版社一覧</h1>
 		<div>
+			<a href="/">戻る</a>
+		</div>
+		<div>
 			<table>
 				<thead>
+					<tr>
+						<th class="cell">ID</th>
+						<th class="cell">名称</th>
+						<th class="cell">郵便番号</th>
+						<th class="cell">住所</th>
+						<th class="cell">電話番号</th>
+					</tr>
 				</thead>
 				<tbody>
 					<tr th:each="publisher : ${publisherList}" th:object="${publisher}">
 						<td th:text="*{id}" class="cell"></td>
 						<td th:text="*{name}" class="cell"></td>
+						<td th:text="*{zip}" class="cell"></td>
+						<td class="cell"><span th:text="*{address1}"></span>　<span th:text="*{address2}"></span></td>
+						<td th:text="*{phone}" class="cell"></td>
 					</tr>
 				</tbody>
 			</table>
