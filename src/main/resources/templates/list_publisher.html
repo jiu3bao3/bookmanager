@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+	<title>読書管理</title>
+	<style type="text/css">
+	.container {
+		width: 80%;
+		margin-left:auto;
+		margin-right: auto;
+		background-color: #F0FFFF;
+		border: 1px solid grey;
+	}
+	.cell {
+		border: 1px solid black;
+	}
+	.btn {
+		margin-left:2em;
+		margin-right:2em;
+		width: 5em;
+		height: 2em;
+		font-weight: bold;
+		font-size: 1.5em;
+	}
+	.textbox {
+		width: 20em;
+	}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>出版社一覧</h1>
+		<div>
+			<table>
+				<thead>
+				</thead>
+				<tbody>
+					<tr th:each="publisher : ${publisherList}" th:object="${publisher}">
+						<td th:text="*{id}" class="cell"></td>
+						<td th:text="*{name}" class="cell"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div>
+			<a href="/">戻る</a>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.jyis.bookmanager.publishers;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,15 @@ public class PublisherService
     {
         return publisherDao.selectAll(form).stream()
                            .collect(Collectors.toMap(p -> p.getId(), p -> p.getName()));
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社情報をすべて取得してListを返す
+     * @return 出版社情報のList
+     */
+    public List<Publisher> listPublisher()
+    {
+        return publisherDao.selectAll(null);
     }
     //----------------------------------------------------------------------------------------------
     /**

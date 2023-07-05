@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.jyis.bookmanager.publishers;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+import java.util.List;
 import java.util.Map;
 import java.util.Locale;
 
@@ -120,6 +121,17 @@ public class PublisherController
             response = new ResponseEntity<String>(json, header, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社一覧画面を表示する
+     * @return 出版社一覧画面
+     */
+    @RequestMapping(value="publisher/list", method=RequestMethod.GET)
+    public ModelAndView listPublishers()
+    {
+        List<Publisher> list = service.listPublisher();
+        return new ModelAndView("list_publisher", "publisherList", list);
     }
     //----------------------------------------------------------------------------------------------
     /**
