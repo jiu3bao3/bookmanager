@@ -83,6 +83,10 @@ public class BookForm extends AbstractBook implements Serializable
                 errors.put("isbn", new ArrayList(Arrays.asList(isbn, "不正なISBNです。")));
             }
         }
+        if(getTitle().length() == 0)
+        {
+            errors.put("title", new ArrayList(Arrays.asList("ブランクです。")));
+        }
         if(!errors.isEmpty())
         {
             throw new  ValidationException(errors);

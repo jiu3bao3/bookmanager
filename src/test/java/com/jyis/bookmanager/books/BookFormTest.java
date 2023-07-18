@@ -108,6 +108,20 @@ public class BookFormTest
     }
     //----------------------------------------------------------------------------------------------
     /**
+     * タイトルがブランクの場合にValidationExceptionがスローされること
+     */
+    @Test
+    public void validateTitleWithBlankTest() throws Exception
+    {
+        final String MESSAGE = "タイトルがブランクの場合にValidationExceptionがスローされること";
+        BookForm form = createForm();
+        form.setTitle("");
+        Exception exception = Assertions.assertThrows(ValidationException.class, () -> {
+             form.validate();
+        });
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
      * テスト用のBookオブジェクトを作成する
      * @return Bookオブジェクト
      */
