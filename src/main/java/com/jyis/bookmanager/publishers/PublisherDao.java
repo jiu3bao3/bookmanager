@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.jyis.bookmanager.AbstractDao;
 import com.jyis.bookmanager.AbstractForm;
+import com.jyis.bookmanager.exceptions.PersistenceException;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * 出版社DAOクラス
@@ -179,7 +180,7 @@ public final class PublisherDao extends AbstractDao<Publisher>
         }
         catch(SQLException e)
         {
-            throw new RuntimeException(e);
+            throw new PersistenceException(e);
         }
     }
     //----------------------------------------------------------------------------------------------
@@ -209,7 +210,7 @@ public final class PublisherDao extends AbstractDao<Publisher>
         }
         catch(SQLException e)
         {
-            throw new RuntimeException(e);
+            throw new PersistenceException(e);
         }
     }
     //----------------------------------------------------------------------------------------------
@@ -244,7 +245,7 @@ public final class PublisherDao extends AbstractDao<Publisher>
         }
         catch(SQLException e)
         {
-            throw new RuntimeException(e);
+            throw new PersistenceException(e);
         }
     }
 }

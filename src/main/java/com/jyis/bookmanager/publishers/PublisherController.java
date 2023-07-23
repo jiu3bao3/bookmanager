@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.jyis.bookmanager.exceptions.PersistenceException;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * 出版社コントローラ
@@ -73,10 +75,20 @@ public class PublisherController
     @RequestMapping(value="publisher/new", method=RequestMethod.POST)
     public ModelAndView createPublisher(@ModelAttribute Publisher form)
     {
-        Publisher publisher = service.createPublisher(form);
-        logger.info(publisher.toString());
-        ModelAndView modelAndView = new ModelAndView("publisher", "form", publisher);
-        modelAndView.addObject("action", String.format("/publisher/%d", publisher.getId()));
+        ModelAndView modelAndView = new ModelAndView("publisher");
+        try
+        {
+            Publisher publisher = service.createPublisher(form);
+            logger.info(publisher.toString());
+            modelAndView.addObject("form", publisher);
+            modelAndView.addObject("action", String.format("/publisher/%d", publisher.getId()));
+        }
+        catch(PersistenceException e)
+        {
+            logger.error(e.getMessage());
+            form.setMessage(e.getMessage());
+            modelAndView.addObject("form", form);
+        }
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
@@ -88,9 +100,17 @@ public class PublisherController
     @RequestMapping(value="publisher/{id}", method={ RequestMethod.PATCH, RequestMethod.POST })
     public ModelAndView updatePublisher(@ModelAttribute Publisher publisher)
     {
-        service.updatePublisher(publisher);
         ModelAndView modelAndView = new ModelAndView("publisher", "form", publisher);
         modelAndView.addObject("action", String.format("/publisher/%d", publisher.getId()));
+        try
+        {
+            service.updatePublisher(publisher);
+        }
+        catch(PersistenceException e)
+        {
+            logger.error(e.getMessage());
+            publisher.setMessage(e.getMessage());
+        }
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
