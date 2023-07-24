@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,18 +84,92 @@ public class PublisherDaoTest
      * IDで出版社レコードを取得できること
      */
     @Test
-    public void selectOneByIdTest() throws Exception
+    public void selectOneByNameTest() throws Exception
     {
         PublisherDao dao = new PublisherDaoMock();
         Publisher publisher = createPublisher();
         dao.insert(publisher);
-        Publisher selectedPublisher = dao.selectOne(publisher);
+        Publisher selectedPublisher = dao.selectOne(new Publisher(publisher.getName()));
         Assertions.assertEquals(selectedPublisher.getName(), publisher.getName());
         Assertions.assertEquals(selectedPublisher.getZip(), publisher.getZip());
         Assertions.assertEquals(selectedPublisher.getAddress1(), publisher.getAddress1());
         Assertions.assertEquals(selectedPublisher.getAddress2(), publisher.getAddress2());
         Assertions.assertEquals(selectedPublisher.getPhone(), publisher.getPhone());
         Assertions.assertEquals(selectedPublisher.getEmail(), publisher.getEmail());
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 条件を指定せずに全件を取得できること
+     */
+    @Test
+    public void selectAllTestByEmpty() throws Exception
+    {
+        final int size = 5;
+        PublisherDao dao = new PublisherDaoMock();
+        for(int i = 0; i < size; i++)
+        {
+            Publisher publisher = createPublisher();
+            publisher.setName(String.format("テスト出版%d", i + 1));
+            dao.insert(publisher);
+        }
+        List<Publisher> list = dao.selectAll(null);
+        Assertions.assertEquals(list.size(), size);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社名が一部一致するレコードのみ抽出できること
+     */
+    @Test
+    public void selectAllTestByName() throws Exception
+    {
+        String[] publisher_names = new String[] { "テスト出版１", "テスト出版２", "TEST PUBLISHING 1", "テストパブリッシング" };
+        PublisherDao dao = new PublisherDaoMock();
+        for(String name : publisher_names)
+        {
+            Publisher publisher = createPublisher();
+            publisher.setName(name);
+            dao.insert(publisher);
+        }
+        List<Publisher> list = dao.selectAll(new SearchForm("テスト出版"));
+        Assertions.assertEquals(list.size(), 2);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社の更新ができること
+     */
+    @Test
+    public void updateTest() throws Exception
+    {
+        final String newAddress = "引っ越しました";
+        PublisherDao dao = new PublisherDaoMock();
+        dao.insert(createPublisher());
+        List<Publisher> list = dao.selectAll(null);
+        Integer id = null;
+        for(Publisher publisher: list)
+        {
+            id = publisher.getId();
+            publisher.setAddress1(newAddress);
+            dao.update(publisher);
+        }
+        Publisher selectedPublisher = dao.selectOne(id);
+        Assertions.assertEquals(newAddress, selectedPublisher.getAddress1());
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 出版社のレコードを削除できること
+     */
+    @Test
+    public void deleteTest() throws Exception
+    {
+        PublisherDao dao = new PublisherDaoMock();
+        dao.insert(createPublisher());
+        List<Publisher> list = dao.selectAll(null);
+        for(Publisher publisher : list)
+        {
+            dao.deleteById(publisher.getId());
+            Publisher result = dao.selectOne(publisher);
+            Assertions.assertEquals(null, result);
+        }
     }
     //----------------------------------------------------------------------------------------------
     /**
