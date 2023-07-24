@@ -56,8 +56,10 @@ public final class BookController
     @RequestMapping(value="/index", method=RequestMethod.GET)
     public ModelAndView index()
     {
-        ModelAndView modelAndView = new ModelAndView("index", "bookList", Arrays.asList());
-        modelAndView.addObject("form", new SearchForm());
+        SearchForm form = new SearchForm();
+        List<Book> list = service.selectBooks(form);
+        ModelAndView modelAndView = new ModelAndView("index", "bookList", list);
+        modelAndView.addObject("form", form);
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
