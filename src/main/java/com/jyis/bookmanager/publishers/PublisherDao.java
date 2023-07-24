@@ -23,7 +23,7 @@ import com.jyis.bookmanager.exceptions.PersistenceException;
  * @author 久保　由仁
  */
 @Component
-public final class PublisherDao extends AbstractDao<Publisher>
+public class PublisherDao extends AbstractDao<Publisher>
 {
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(PublisherDao.class);
