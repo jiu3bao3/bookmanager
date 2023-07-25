@@ -117,6 +117,19 @@ public class PublisherServiceTest
     }
     //----------------------------------------------------------------------------------------------
     /**
+     * 出版社を削除できること
+     */
+    @Test
+    public void deletePublisherTest() throws Exception
+    {
+        final String MESSAGE = "出版社を削除できること";
+        Publisher publisher = service.createPublisher(createPublisher());
+        Assertions.assertNotNull(publisher);
+        service.deletePublisher(publisher.getId());
+        Assertions.assertNull(service.selectPublisherById(publisher.getId()));
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
      * DAOオブジェクトのモックを設定する
      */
     @BeforeAll
