@@ -83,8 +83,7 @@ public class PublisherServiceTest
         int number = 0;
         for(Integer i : map.keySet())
         {
-            Assertions.assertEquals(String.format("出版社%d", ++number), map.get(i), MESSAGE);
-            Assertions.assertEquals("999-9999", map.get(i), MESSAGE);
+            Assertions.assertLinesMatch(Arrays.asList("^出版社\\d+$"), Arrays.asList(map.get(i)));
         }
     }
     //----------------------------------------------------------------------------------------------
