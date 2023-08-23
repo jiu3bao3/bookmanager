@@ -7,6 +7,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.batch.core.Job;
@@ -62,11 +64,34 @@ public class NdlJobController
         try
         {
             Job job = new SimpleJob("NDL Job");
+            TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
+            jobLauncher.setJobRepository(createJobRepository());
+            JobExecution jobExecution = jobLauncher.run(job, new JobParameters());
         }
         catch(Exception ex)
         {
             logger.error("ジョブ実行に失敗しました。", ex);
+            form.setMessage("ジョブ実行に失敗しました。");
         }
         return new ModelAndView("jobs", "form", form);
+    }
+    //----------------------------------------------------------------------------------------------
+    protected JobRepository createJobRepository() throws Exception
+    {
+        JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
+        factory.setDataSource(getDatasouce());
+        factory.setIsolationLevelForCreate("ISOLATION_SERIALIZABLE");
+        factory.setTablePrefix("BATCH_");
+        factory.setMaxVarCharLength(1000);
+        return factory.getObject();
+    }
+    //----------------------------------------------------------------------------------------------
+    protected DataSource getDatasouce()
+    {
+        SQLServerDataSource ds = new SQLServerDataSource();
+        ds.setURL(env.getProperty("spring.datasource.url"));
+        ds.setUser(env.getProperty("spring.datasource.username"));
+        ds.setPassword(env.getProperty("spring.datasource.password"));
+        return ds;
     }
 }
