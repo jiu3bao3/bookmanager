@@ -3,14 +3,11 @@ package com.jyis.bookmanager.ndl;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 import javax.sql.DataSource;
 
-import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.SimpleJob;
@@ -21,13 +18,10 @@ import org.springframework.batch.core.repository.support.JobRepositoryFactoryBea
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.support.DefaultDataFieldMaxValueIncrementerFactory;
 import org.springframework.batch.support.DatabaseType;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.jdbc.support.incrementer.SqlServerMaxValueIncrementer;
@@ -46,35 +40,55 @@ public class NdlJobService
 {
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(NdlJobService.class);
-
-    /** application設定 */
+    
+    /** DAO */
     @Autowired
-    protected Environment env;
+    private NdlDao dao;
     //----------------------------------------------------------------------------------------------
+    /**
+     * ジョブを起動する
+     */
     public void launch() throws Exception
     {
-            JobRepository jobRepository = createJobRepository();
-            SimpleJob job = new SimpleJob("NDL Job");
-            job.addStep(createStep(jobRepository));
-            job.setJobRepository(jobRepository);
-            TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
-            jobLauncher.setJobRepository(jobRepository);
-            jobLauncher.setTaskExecutor(new DefaultManagedTaskExecutor());
-            JobExecution jobExecution = jobLauncher.run(job, new JobParameters());
+        logger.info("ジョブ開始");
+        JobRepository jobRepository = createJobRepository();
+        SimpleJob job = new SimpleJob("NDL Job");
+        job.addStep(createStep(jobRepository));
+        job.setJobRepository(jobRepository);
+        TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
+        jobLauncher.setJobRepository(jobRepository);
+        jobLauncher.setTaskExecutor(new DefaultManagedTaskExecutor());
+        JobExecution jobExecution = jobLauncher.run(job, new JobParameters());
+        logger.info("ジョブ終了");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    protected Step createStep(JobRepository jobRepository)
+    {
+        StepBuilder stepBuilder = new StepBuilder("step", jobRepository);
+        SimpleStepBuilder simpleStepBuilder = stepBuilder
+                            .<Book, Book>chunk(1, new ResourcelessTransactionManager())
+                            .reader(new NdlBookReader())
+                            .writer(new NdlBookWriter());
+        return simpleStepBuilder.build();
     }
     //----------------------------------------------------------------------------------------------
+    /**
+     * JobRepositoryを構築する
+     * @return JobRepository
+     */
     protected JobRepository createJobRepository() throws Exception
     {
+        DataSource dataSource = dao.dataSource();
         JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
-        DataSource dataSource = getDatasouce();
         factory.setDataSource(dataSource);
         factory.setIsolationLevelForCreate("ISOLATION_SERIALIZABLE");
         factory.setTablePrefix("BATCH_");
         factory.setMaxVarCharLength(1000);
         factory.setIncrementerFactory(new DefaultDataFieldMaxValueIncrementerFactory(dataSource) {
             @Override
-            public DataFieldMaxValueIncrementer getIncrementer(String incrementerType, String incrementerName) {
-                return new SqlServerSequenceMaxValueIncrementer(dataSource, incrementerName);
+            public DataFieldMaxValueIncrementer getIncrementer(String type, String name) {
+                return new SqlServerSequenceMaxValueIncrementer(dataSource, name);
             }
         });
         factory.setDatabaseType(DatabaseType.SQLSERVER.toString());
@@ -82,29 +96,5 @@ public class NdlJobService
         factory.setJdbcOperations(new JdbcTemplate(dataSource));
         factory.afterPropertiesSet();
         return factory.getObject();
-    }
-    //----------------------------------------------------------------------------------------------
-    protected DataSource getDatasouce()
-    {
-        SQLServerDataSource ds = new SQLServerDataSource();
-        ds.setURL(env.getProperty("spring.datasource.url"));
-        ds.setUser(env.getProperty("spring.datasource.username"));
-        ds.setPassword(env.getProperty("spring.datasource.password"));
-        return ds;
-    }
-    protected Step createStep(JobRepository jobRepository)
-    {
-        StepBuilder stepBuilder = new StepBuilder("step", jobRepository);
-        SimpleStepBuilder simpleStepBuilder = stepBuilder
-                            .<Book, Book>chunk(1, new ResourcelessTransactionManager())
-                            .reader(new ItemReader<Book>() {
-                                @Override
-                                public Book read() { return null; }
-                            })
-                            .writer(new ItemWriter<Book>() {
-                                @Override
-                                public void write(Chunk<? extends Book> chunk) { }
-                            });
-        return simpleStepBuilder.build();
     }
 }

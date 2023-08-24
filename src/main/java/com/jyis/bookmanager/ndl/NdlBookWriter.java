@@ -1,0 +1,18 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
+package com.jyis.bookmanager.ndl;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.ItemWriterException;
+import org.springframework.batch.item.Chunk;
+
+import com.jyis.bookmanager.books.Book;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+public class NdlBookWriter implements ItemWriter<Book>
+{
+    public void write(Chunk<? extends Book> chunk) throws ItemWriterException
+    {
+    }
+}
