@@ -7,6 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import javax.sql.DataSource;
+
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,12 +74,10 @@ public abstract class AbstractDao<T> implements IDao<T>
     protected Connection open()
     {
         Connection con = null;
-        String url = env.getProperty("spring.datasource.url");
-        String user = env.getProperty("spring.datasource.username");
-        String password = env.getProperty("spring.datasource.password");
         try
         {
-            con = DriverManager.getConnection(url, user, password);
+            DataSource dataSource = getDatasouce();
+            con = dataSource.getConnection();
             con.setAutoCommit(false);
         }
         catch(SQLException e)
@@ -84,6 +85,19 @@ public abstract class AbstractDao<T> implements IDao<T>
             throw new RuntimeException(e);
         }
         return con;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * データソースオブジェクトを返す
+     * @return DataSourceオブジェクト
+     */
+    protected DataSource getDatasouce()
+    {
+        SQLServerDataSource ds = new SQLServerDataSource();
+        ds.setURL(env.getProperty("spring.datasource.url"));
+        ds.setUser(env.getProperty("spring.datasource.username"));
+        ds.setPassword(env.getProperty("spring.datasource.password"));
+        return ds;
     }
     //----------------------------------------------------------------------------------------------
     /**
