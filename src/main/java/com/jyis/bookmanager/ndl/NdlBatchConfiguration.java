@@ -12,24 +12,32 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 
 import com.jyis.bookmanager.books.Book;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Spring Batchジョブの設定
+ * @author 久保　由仁
+ */
 @Configuration
 public class NdlBatchConfiguration
 {
     /** application設定 */
     @Autowired
     protected Environment env;
-
+    //---------------------------------------------------------------------------------------------
+    /** 
+     * 書誌情報取得プロセッサー
+     * @return Spring Batchのプロセッサ
+     */
     @Bean
     public NdlBookItemProcessor processor()
     {
@@ -38,6 +46,7 @@ public class NdlBatchConfiguration
     //---------------------------------------------------------------------------------------------
     /*
      * Job定義
+     * @return Job
      */
     @Bean
     public Job ndlInfoObtainingJob(JobRepository jobRepository, Step step)
@@ -47,6 +56,10 @@ public class NdlBatchConfiguration
         return job;
     }
     //---------------------------------------------------------------------------------------------
+    /**
+     * ジョブのステップ定義
+     * @return Spring BatchのStep
+     */
     @Bean
     public Step step(JobRepository jobRepository, PlatformTransactionManager transactionManager)
     {
@@ -59,6 +72,10 @@ public class NdlBatchConfiguration
         return step;
     }
     //---------------------------------------------------------------------------------------------
+    /**
+     * readerの定義
+     * @return Spring Batchのreader
+     */
     @Bean
     public JdbcCursorItemReader reader()
     {
@@ -77,11 +94,20 @@ public class NdlBatchConfiguration
         return builder.build();
     }
     //---------------------------------------------------------------------------------------------
+    /**
+     * writerの定義
+     * @return Spring Batchのwriter
+     */
     @Bean
     public NdlBookItemWriter writer()
     {
         return new NdlBookItemWriter();
     }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * データソースを取得する
+     * @return DataSource
+     */
     private DataSource getDatasouce()
     {
         SQLServerDataSource ds = new SQLServerDataSource();
