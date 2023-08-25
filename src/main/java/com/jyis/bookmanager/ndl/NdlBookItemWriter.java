@@ -10,9 +10,9 @@ import org.springframework.batch.item.Chunk;
 
 import com.jyis.bookmanager.books.Book;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-public class NdlBookWriter implements ItemWriter<Book>
+public class NdlBookItemWriter implements ItemWriter<NdlInfo>
 {
-    public void write(Chunk<? extends Book> chunk) throws ItemWriterException
+    public void write(Chunk<? extends NdlInfo> chunk) throws ItemWriterException
     {
     }
 }

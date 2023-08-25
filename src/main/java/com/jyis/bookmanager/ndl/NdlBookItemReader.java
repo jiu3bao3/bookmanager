@@ -6,7 +6,7 @@ import org.springframework.batch.item.ItemReaderException;
 
 import com.jyis.bookmanager.books.Book;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-public class NdlBookReader implements ItemReader<Book>
+public class NdlBookItemReader implements ItemReader<Book>
 {
     public Book read() throws ItemReaderException
     {
