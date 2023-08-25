@@ -64,7 +64,8 @@ public class NdlBatchConfiguration
     public Step step(JobRepository jobRepository, PlatformTransactionManager transactionManager)
     {
         StepBuilder stepBuilder = new StepBuilder("step1", jobRepository);
-        Step step = stepBuilder.<Book, NdlInfo> chunk(10, transactionManager)
+        Step step = stepBuilder.allowStartIfComplete(true)
+                    .<Book, NdlInfo>chunk(10, transactionManager)
                     .reader(reader())
                     .processor(processor())
                     .writer(writer())
