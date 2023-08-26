@@ -12,11 +12,16 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.ItemWriterException;
+import org.springframework.batch.item.WriteFailedException;
 import org.springframework.batch.item.Chunk;
 
 import com.jyis.bookmanager.books.Book;
 import com.jyis.bookmanager.books.ExtraInfo;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Spring BatchのWriterクラス
+ * @author 久保　由仁
+ */
 public class NdlBookItemWriter implements ItemWriter<NdlInfo>
 {
     /** ロガー */
@@ -25,11 +30,20 @@ public class NdlBookItemWriter implements ItemWriter<NdlInfo>
     /** データソース */
     private DataSource dataSource;
     //---------------------------------------------------------------------------------------------
+    /**
+     * コンストラクタ
+     * @param ds データソース
+     */
     public NdlBookItemWriter(DataSource ds)
     {
         dataSource = ds;
     }
     //---------------------------------------------------------------------------------------------
+    /**
+     * 書誌情報をデータベースに書き込む
+     * @param chunk 登録対象の書誌情報群
+     * @throws ItemWriterException 書込エラー
+     */
     @Override
     public void write(Chunk<? extends NdlInfo> chunk) throws ItemWriterException
     {
@@ -43,9 +57,16 @@ public class NdlBookItemWriter implements ItemWriter<NdlInfo>
         }
     }
     //---------------------------------------------------------------------------------------------
+    /**
+     * 書誌情報をテーブルに書き込む
+     * @param bookId BookのID
+     * @param type 書誌情報のタイプ
+     * @param content 書誌情報本文
+     * @throws ItemWriterException ＤＢ書込エラー
+     */
     private void register(final int bookId, ExtraInfo type, final String content)
+                                                                throws ItemWriterException
     {
-        logger.info(String.format("%d----%s----%s", bookId, type, content));
         final String SQL = "INSERT INTO EXTRA_INFO(book_id, note_type, note) VALUES(?, ?, ?)";
         try(Connection con = dataSource.getConnection();
             PreparedStatement stmt = con.prepareStatement(SQL))
@@ -57,7 +78,7 @@ public class NdlBookItemWriter implements ItemWriter<NdlInfo>
         }
         catch(SQLException e)
         {
-            throw new RuntimeException(e);
+            throw new WriteFailedException("ＤＢ登録に失敗しました。", e);
         }
     }
 }
