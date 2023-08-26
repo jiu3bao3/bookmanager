@@ -10,10 +10,14 @@ import java.util.stream.Stream;
  */
 public enum ExtraInfo
 {
+    /** 帯 */
+    COVER("02"),
     /** 備考 */
     NOTE("03"),
     /** 内容 */
-    COONTENTS("04");
+    COONTENTS("04"),
+    /** その他 */
+    OTHER("23");
     
     /** DBに格納されている値 */
     private String typeCode;
