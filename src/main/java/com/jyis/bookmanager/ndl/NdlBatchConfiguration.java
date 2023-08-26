@@ -86,7 +86,7 @@ public class NdlBatchConfiguration
                         + "WHERE R.BOOK_ID = B.ID AND R.READ_ON >= ?) ";
         JdbcCursorItemReaderBuilder builder = new JdbcCursorItemReaderBuilder();
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.YEAR, -2);
+        calendar.add(Calendar.YEAR, -1);
         builder.dataSource(getDatasouce())
                 .sql(SQL)
                 .saveState(false)
@@ -102,7 +102,7 @@ public class NdlBatchConfiguration
     @Bean
     public NdlBookItemWriter writer()
     {
-        return new NdlBookItemWriter();
+        return new NdlBookItemWriter(getDatasouce());
     }
     //---------------------------------------------------------------------------------------------
     /**

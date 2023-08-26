@@ -4,6 +4,7 @@ package com.jyis.bookmanager.ndl;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 import com.jyis.bookmanager.books.ExtraInfo;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +77,10 @@ public class NdlInfo implements Serializable
         bookId = arg;
     }
     //---------------------------------------------------------------------------------------------
+    /**
+     * ISBNを取得する
+     * @return ISBN
+     */
     public String getIsbn()
     {
         return isbn;
@@ -108,5 +113,14 @@ public class NdlInfo implements Serializable
     public String get(final ExtraInfo type)
     {
         return informations.get(type);
+    }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * 保持している書誌情報のタイプのSetを返す
+     * @return 書誌情報のタイプのSet
+     */
+    public Set<ExtraInfo> keySet()
+    {
+        return informations.keySet();
     }
 }
