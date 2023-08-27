@@ -33,6 +33,12 @@ public class NdlBatchConfiguration
     /** application設定 */
     @Autowired
     protected Environment env;
+
+    /** Readerで用いるSQLステートメント */
+    public static final String READER_SQL = "SELECT ID, ISBN, TITLE, AUTHORS, PUBLISHER "
+                + "FROM BOOKS B WHERE ISBN IS NOT NULL AND NOT EXISTS(SELECT 1 FROM EXTRA_INFO E "
+                + "WHERE E.BOOK_ID = B.ID) AND EXISTS (SELECT 1 FROM READ_BOOKS R "
+                + "WHERE R.BOOK_ID = B.ID AND R.READ_ON >= ?) ";
     //---------------------------------------------------------------------------------------------
     /** 
      * 書誌情報取得プロセッサー
@@ -80,15 +86,11 @@ public class NdlBatchConfiguration
     @Bean
     public JdbcCursorItemReader reader()
     {
-        final String SQL = "SELECT ID, ISBN, TITLE, AUTHORS, PUBLISHER FROM BOOKS B "
-                        + "WHERE ISBN IS NOT NULL AND NOT EXISTS(SELECT 1 FROM EXTRA_INFO E "
-                        + "WHERE E.BOOK_ID = B.ID) AND EXISTS (SELECT 1 FROM READ_BOOKS R "
-                        + "WHERE R.BOOK_ID = B.ID AND R.READ_ON >= ?) ";
         JdbcCursorItemReaderBuilder builder = new JdbcCursorItemReaderBuilder();
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.YEAR, -1);
         builder.dataSource(getDatasouce())
-                .sql(SQL)
+                .sql(READER_SQL)
                 .saveState(false)
                 .queryArguments(calendar.getTime())
                 .rowMapper(new BeanPropertyRowMapper<Book>(Book.class));
@@ -109,7 +111,7 @@ public class NdlBatchConfiguration
      * データソースを取得する
      * @return DataSource
      */
-    private DataSource getDatasouce()
+    protected DataSource getDatasouce()
     {
         SQLServerDataSource ds = new SQLServerDataSource();
         ds.setURL(env.getProperty("spring.datasource.url"));
