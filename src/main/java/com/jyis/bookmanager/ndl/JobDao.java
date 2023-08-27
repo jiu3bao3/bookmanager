@@ -18,6 +18,10 @@ import com.jyis.bookmanager.AbstractDao;
 import com.jyis.bookmanager.AbstractForm;
 import com.jyis.bookmanager.books.Book;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * JobのDAO
+ * @author 久保　由仁
+ */
 @Component
 public class JobDao extends AbstractDao<JobHistory>
 {
@@ -29,6 +33,11 @@ public class JobDao extends AbstractDao<JobHistory>
     public void update(JobHistory arg) { throw new UnsupportedOperationException(); }
     public JobHistory selectOne(int arg) { throw new UnsupportedOperationException(); }
     //---------------------------------------------------------------------------------------------
+    /**
+     * ジョブ一覧取得
+     * @param form ダミー
+     * @return ジョブ履歴のList
+     */
     public List<JobHistory> selectAll(AbstractForm form)
     { 
         final String SQL = "SELECT JOB_INSTANCE_ID, CREATE_TIME, START_TIME, END_TIME, STATUS, "

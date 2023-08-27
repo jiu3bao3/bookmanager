@@ -47,6 +47,11 @@ public class NdlJobService
         logger.info("ジョブ終了");
     }
     //----------------------------------------------------------------------------------------------
+    /**
+     * ジョブ履歴の一覧を取得する
+     * @param form ダミー
+     * @return ジョブ履歴のList
+     */
     public List<JobHistory> getJobHistories(NdlJobForm form)
     {
         return jobDao.selectAll(form);
