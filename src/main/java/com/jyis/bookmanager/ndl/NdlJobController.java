@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.jyis.bookmanager.ndl;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +36,16 @@ public class NdlJobController
     @RequestMapping(value="/jobs", method=RequestMethod.GET)
     public ModelAndView index()
     {
-        return new ModelAndView("jobs", "form", new NdlJobForm());
+        NdlJobForm form = new NdlJobForm();
+        ModelAndView modelAndView = new ModelAndView("jobs", "form", form);
+        List<JobHistory> jobList = service.getJobHistories(form);
+        modelAndView.addObject("jobHistories", jobList);
+        return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
     /**
      * ジョブを実行する
+     * @param form フォーム
      * @return ジョブの起動画面のFormAndView
      */
     @RequestMapping(value="/jobs", method=RequestMethod.POST)
@@ -55,6 +61,9 @@ public class NdlJobController
             logger.error("ジョブ実行に失敗しました。", ex);
             form.setMessage("ジョブ実行に失敗しました。");
         }
-        return new ModelAndView("jobs", "form", form);
+        ModelAndView modelAndView = new ModelAndView("jobs", "form", form);
+        List<JobHistory> jobList = service.getJobHistories(form);
+        modelAndView.addObject("jobHistories", jobList);
+        return modelAndView;
     }
 }

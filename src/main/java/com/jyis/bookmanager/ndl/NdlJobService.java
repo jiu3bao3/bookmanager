@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.jyis.bookmanager.ndl;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+import java.util.List;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -31,6 +32,10 @@ public class NdlJobService
     /** ジョブ */
     @Autowired
     private Job job;
+
+    /** DAO */
+    @Autowired
+    private JobDao jobDao;
     //----------------------------------------------------------------------------------------------
     /**
      * ジョブを起動する
@@ -40,5 +45,10 @@ public class NdlJobService
         logger.info("ジョブ開始");
         jobLauncher.run(job, new JobParameters());
         logger.info("ジョブ終了");
+    }
+    //----------------------------------------------------------------------------------------------
+    public List<JobHistory> getJobHistories(NdlJobForm form)
+    {
+        return jobDao.selectAll(form);
     }
 }

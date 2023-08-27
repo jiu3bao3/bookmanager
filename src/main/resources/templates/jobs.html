@@ -20,7 +20,8 @@
 	.message {
 		color: red;
 	}
-	.readonly {
+	.cell {
+		border: 1px solid black;
 	}
 	</style>
 </head>
@@ -34,6 +35,26 @@
 			<form th:action="@{/jobs}" method="post" th:object="${form}">
 				<p class="message" th:text="*{message}"></p>
 				<button name="launch" type="submit" class="btn">実行</button>
+				<table>
+					<thead>
+						<tr>
+							<th class="cell">登録日時</th>
+							<th class="cell">開始</th>
+							<th class="cell">終了</th>
+							<th class="cell">ステータス</th>
+							<th class="cell">メッセージ</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="jobHistory : ${jobHistories}" th:object="${jobHistory}">
+							<td th:text="${#dates.format(jobHistory.createTime, 'yyyy/MM/dd HH:mm:ss')}" class="cell"></td>
+							<td th:text="${#dates.format(jobHistory.startTime, 'HH:mm:ss')}" class="cell"></td>
+							<td th:text="${#dates.format(jobHistory.endTime, 'HH:mm:ss')}" class="cell"></td>
+							<td th:text="*{status}" class="cell"></td>
+							<td th:text="*{exitMessage}" class="cell"></td>
+						</tr>
+					</tbody>
+				</table>
 			</form>
 		</div>
 		<div>
