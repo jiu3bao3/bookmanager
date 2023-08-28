@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.jyis.bookmanager.ndl;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+import java.lang.reflect.Field;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Assertions;
@@ -28,6 +29,20 @@ public class NdlBatchConfigurationTest
         Assertions.assertTrue(reader.getDataSource() instanceof SQLiteDataSource, MESSAGE);
         Assertions.assertFalse(reader.isSaveState(), MESSAGE);
         Assertions.assertEquals(reader.getSql(), NdlBatchConfiguration.READER_SQL, MESSAGE);
+    }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * writerが想定通りに構築されていること
+     */
+    @Test
+    public void writerTest() throws Exception
+    {
+        final String MESSAGE = "writerが想定通りに構築されていること";
+        NdlBatchConfiguration config = new NdlBatchConfigurationImpl();
+        NdlBookItemWriter writer = config.writer();
+        Field fld = NdlBookItemWriter.class.getDeclaredField("dataSource");
+        fld.setAccessible(true);
+        Assertions.assertTrue(fld.get(writer) instanceof SQLiteDataSource, MESSAGE);
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
