@@ -3,7 +3,6 @@ package com.jyis.bookmanager.publishers;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 import java.util.List;
 import java.util.Map;
-import java.util.Locale;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.jyis.bookmanager.AbstractController;
 import com.jyis.bookmanager.exceptions.PersistenceException;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -31,7 +31,7 @@ import com.jyis.bookmanager.exceptions.PersistenceException;
  * @author 久保　由仁
  */
 @Controller
-public class PublisherController
+public final class PublisherController extends AbstractController
 {
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(PublisherController.class);
@@ -163,21 +163,8 @@ public class PublisherController
     public ResponseEntity<String> deletePublisher(@PathVariable("id") Integer id)
     {
         logger.info(String.format("deletePublishers() called %d", id));
-        ResponseEntity<String> response = null;
         service.deletePublisher(id);
         String json = String.format("{ \"message\" : \"%dの出版社を削除しました。\"}", id);
         return new ResponseEntity<String>(json, createResponseHeader(), HttpStatus.OK);
-    }
-    //----------------------------------------------------------------------------------------------
-    /**
-     * JSON用のレスポンスヘッダを作成する
-     * @return JSON用のレスポンスヘッダ
-     */
-    private HttpHeaders createResponseHeader()
-    {
-        HttpHeaders header = new HttpHeaders();
-        header.set(HttpHeaders.CONTENT_TYPE, "application/json");
-        header.setContentLanguage(Locale.JAPANESE);
-        return header;
     }
 }

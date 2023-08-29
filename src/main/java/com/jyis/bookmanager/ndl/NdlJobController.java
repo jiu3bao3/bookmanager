@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,13 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.jyis.bookmanager.books.Book;
+import com.jyis.bookmanager.AbstractController;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * ジョブ制御画面コントローラ
  * @author 久保　由仁
  */
 @Controller
-public class NdlJobController
+public final class NdlJobController extends AbstractController
 {
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(NdlJobController.class);
@@ -65,5 +69,17 @@ public class NdlJobController
         List<JobHistory> jobList = service.getJobHistories(form);
         modelAndView.addObject("jobHistories", jobList);
         return modelAndView;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * ジョブ実行履歴をすべてクリア（削除）する
+     * @pram form フォーム
+     * @return ジョブの起動画面のFormAndView
+     */
+    @RequestMapping(value="/jobs", method=RequestMethod.DELETE)
+    public ResponseEntity<String> clearJobHistories()
+    {
+        String json = "{}";
+        return new ResponseEntity<String>(json, createResponseHeader(), HttpStatus.OK);
     }
 }

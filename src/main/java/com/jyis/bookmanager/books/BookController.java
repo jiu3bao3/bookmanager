@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.jyis.bookmanager.AbstractController;
 import com.jyis.bookmanager.exceptions.ValidationException;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -26,7 +27,7 @@ import com.jyis.bookmanager.exceptions.ValidationException;
  * @author 久保　由仁
  */
 @Controller
-public final class BookController
+public final class BookController extends AbstractController
 {
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(BookController.class);

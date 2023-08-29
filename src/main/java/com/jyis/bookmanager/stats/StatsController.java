@@ -13,13 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.jyis.bookmanager.AbstractController;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * 集計コントローラ
  * @author 久保　由仁
  */
 @Controller
-public final class StatsController
+public final class StatsController extends AbstractController
 {
     /** DAO */
     @Autowired
