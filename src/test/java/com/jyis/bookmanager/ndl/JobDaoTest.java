@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Date;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -66,7 +68,6 @@ public class JobDaoTest
      */
     private static String[] getSql(String fileName) throws IOException
     {
-        logger.info(String.format("getSql start %s", fileName));
         StringBuilder sb = new StringBuilder();
         ClassLoader classLoader = JobDaoTest.class.getClassLoader();
         try(InputStream stream = classLoader.getResourceAsStream(fileName);
@@ -97,28 +98,52 @@ public class JobDaoTest
     }
     //----------------------------------------------------------------------------------------------
     /**
+     * ジョブ実行履歴を取得できること
+     */
+    @Test
+    public void selectAllTest() throws Exception
+    {
+        final String MESSAGE = "ジョブ実行履歴を取得できること";
+        JobDaoMock dao = new JobDaoMock();
+        insertDummyData();
+        List<JobHistory> list = dao.selectAll(null);
+        Assertions.assertEquals(list.size(), 1, MESSAGE);
+        JobHistory jobHistory = list.get(0);
+        Assertions.assertEquals(jobHistory.getJobInstanceId(), -1L, MESSAGE);
+        Assertions.assertEquals(jobHistory.getStatus(), "STATUS_COMPLETED", MESSAGE);
+        Assertions.assertEquals(jobHistory.getExitMessage(), "EXIT_MESSAGE_EXAMPLE", MESSAGE);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
      * レコードがすべて削除されていること
      */
     @Test
     public void deleteAllTest() throws Exception
     {
-        final String SQL_FOR_COUNT = "SELECT COUNT(*) AS REC_COUNT FROM BATCH_JOB_EXECUTION";
+        final String[] TABLES = { "BATCH_JOB_EXECUTION", "BATCH_JOB_EXECUTION_CONTEXT",
+                                "BATCH_JOB_EXECUTION_PARAMS", "BATCH_STEP_EXECUTION", 
+                                "BATCH_STEP_EXECUTION_CONTEXT" };
+        final String SQL_FOR_COUNT = "SELECT COUNT(*) AS REC_COUNT FROM %s";
         JobDaoMock dao = new JobDaoMock();
         insertDummyData();
         dao.deleteAll();
         try(Connection con = dao.open())
         {
             if(!(con instanceof SQLiteConnection)) throw new IllegalStateException();
-            long count = 0L;
-            try(Statement stmt = con.createStatement();
-                ResultSet result = stmt.executeQuery(SQL_FOR_COUNT))
+            for(String table : TABLES)
             {
-                if(result.next())
+                long count = 0L;
+                try(Statement stmt = con.createStatement();
+                    ResultSet result = stmt.executeQuery(String.format(SQL_FOR_COUNT, table)))
                 {
-                    count = result.getLong("REC_COUNT");
+                    if(result.next())
+                    {
+                        count = result.getLong("REC_COUNT");
+                    }
                 }
+                String message = String.format("%sのレコードがすべて削除されていること", table);
+                Assertions.assertEquals(0L, count, message);
             }
-            Assertions.assertEquals(0L, count,"レコードがすべて削除されていること");
         }
     }
     //----------------------------------------------------------------------------------------------
@@ -126,10 +151,19 @@ public class JobDaoTest
     {
         final String[] SQL_ARRAY = {
             "INSERT INTO BATCH_JOB_INSTANCE(JOB_INSTANCE_ID, VERSION, JOB_NAME, JOB_KEY) VALUES("
-            + "0, 0, 'TEST_JOB', 'JOB_KEY')",
+                + "-1, 0, 'TEST_JOB', 'JOB_KEY')",
             "INSERT INTO BATCH_JOB_EXECUTION(JOB_EXECUTION_ID, VERSION, JOB_INSTANCE_ID, "
-            + "CREATE_TIME, START_TIME, END_TIME) VALUES(0, 0, 0, CURRENT_TIMESTAMP, "
-            + "CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+                + "CREATE_TIME, START_TIME, END_TIME, STATUS, EXIT_MESSAGE) "
+                + "VALUES (0, 0, -1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, "
+                + "CURRENT_TIMESTAMP, 'STATUS_COMPLETED', 'EXIT_MESSAGE_EXAMPLE')",
+            "INSERT INTO BATCH_JOB_EXECUTION_PARAMS(JOB_EXECUTION_ID, PARAMETER_NAME, "
+                + "PARAMETER_TYPE, IDENTIFYING) VALUES (0, 'PARAM1', 'STRING', 'C')",
+            "INSERT INTO BATCH_STEP_EXECUTION(STEP_EXECUTION_ID, VERSION, STEP_NAME, "
+                + "JOB_EXECUTION_ID, CREATE_TIME) VALUES (0, 0, 'STEP1', 0, CURRENT_TIMESTAMP)",
+            "INSERT INTO BATCH_STEP_EXECUTION_CONTEXT(STEP_EXECUTION_ID, SHORT_CONTEXT)"
+                + "VALUES (0, 'CONTEXT1')",
+            "INSERT INTO BATCH_JOB_EXECUTION_CONTEXT(JOB_EXECUTION_ID, SHORT_CONTEXT)"
+                + " VALUES (0, 'CONTEXT1')"
         };
         JobDaoMock dao = new JobDaoMock();
         try(Connection con = dao.open())
