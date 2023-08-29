@@ -65,4 +65,28 @@ public class JobDao extends AbstractDao<JobHistory>
         }
         return list;
     }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * ジョブ実行履歴をすべて削除する
+     */
+    public void deleteAll()
+    {
+        final String[] TABLES = { "BATCH_STEP_EXECUTION_CONTEXT", "BATCH_STEP_EXECUTION",
+            "BATCH_JOB_EXECUTION_CONTEXT", "BATCH_JOB_EXECUTION_PARAMS", "BATCH_JOB_EXECUTION" };
+        try(Connection con = open();
+            Statement stmt = con.createStatement())
+        {
+            for(String table : TABLES)
+            {
+                String sql = String.format("DELETE FROM %s", table);
+                logger.info(sql);
+                stmt.execute(sql);
+            }
+            con.commit();
+        }
+        catch(SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 }

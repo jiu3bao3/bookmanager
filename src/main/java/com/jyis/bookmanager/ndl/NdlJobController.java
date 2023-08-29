@@ -84,8 +84,18 @@ public final class NdlJobController extends AbstractController
     public ResponseEntity<String> clearJobHistories()
     {
         logger.info("ジョブ実行履歴削除 START");
-        String json = "{ \"message\": \"ジョブ実行履歴を削除しました。\"}";
+        String json = null;
+        HttpStatus status = HttpStatus.OK;
+        try
+        {
+            json = service.deleteJobHistories();
+        }
+        catch(Exception e)
+        {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            json = String.format("{ \"message\" : \"%s\" }", e.getMessage());
+        }
         logger.info("ジョブ実行履歴削除 END");
-        return new ResponseEntity<String>(json, createResponseHeader(), HttpStatus.OK);
+        return new ResponseEntity<String>(json, createResponseHeader(), status);
     }
 }
