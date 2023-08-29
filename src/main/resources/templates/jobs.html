@@ -24,6 +24,26 @@
 		border: 1px solid black;
 	}
 	</style>
+	<script>
+	function celarHistories() {
+		if(!confirm('ジョブ実行履歴を削除します。よろしいですか')) return;
+		const URL = "/jobs";
+		let xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+				if (xmlhttp.status == 200) {
+					let json =  JSON.parse(xmlhttp.responseText);
+					alert(json['message']);
+					document.location.href = URL;
+				} else {
+					alert(xmlhttp.status + xmlhttp.responseText);
+				}
+			}
+		};
+		xmlhttp.open("DELETE", URL, true);
+		xmlhttp.send();
+	}
+	</script>
 </head>
 <body>
 	<div class="container">
@@ -35,6 +55,8 @@
 			<form th:action="@{/jobs}" method="post" th:object="${form}">
 				<p class="message" th:text="*{message}"></p>
 				<button name="launch" type="submit" class="btn">実行</button>
+				<span style="width: 4em;">&nbsp;</span>
+				<button name="clear" type="button" onclick="celarHistories();" class="btn">実行履歴削除</button>
 				<table>
 					<thead>
 						<tr>

@@ -40,10 +40,12 @@ public final class NdlJobController extends AbstractController
     @RequestMapping(value="/jobs", method=RequestMethod.GET)
     public ModelAndView index()
     {
+        logger.info("ジョブ実行履歴一覧 START");
         NdlJobForm form = new NdlJobForm();
         ModelAndView modelAndView = new ModelAndView("jobs", "form", form);
         List<JobHistory> jobList = service.getJobHistories(form);
         modelAndView.addObject("jobHistories", jobList);
+        logger.info("ジョブ実行履歴一覧 END");
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
@@ -55,6 +57,7 @@ public final class NdlJobController extends AbstractController
     @RequestMapping(value="/jobs", method=RequestMethod.POST)
     public ModelAndView launch(@ModelAttribute NdlJobForm form)
     {
+        logger.info("ジョブ実行 START");
         try
         {
             service.launch();
@@ -68,6 +71,7 @@ public final class NdlJobController extends AbstractController
         ModelAndView modelAndView = new ModelAndView("jobs", "form", form);
         List<JobHistory> jobList = service.getJobHistories(form);
         modelAndView.addObject("jobHistories", jobList);
+        logger.info("ジョブ実行 END");
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
@@ -79,7 +83,9 @@ public final class NdlJobController extends AbstractController
     @RequestMapping(value="/jobs", method=RequestMethod.DELETE)
     public ResponseEntity<String> clearJobHistories()
     {
-        String json = "{}";
+        logger.info("ジョブ実行履歴削除 START");
+        String json = "{ \"message\": \"ジョブ実行履歴を削除しました。\"}";
+        logger.info("ジョブ実行履歴削除 END");
         return new ResponseEntity<String>(json, createResponseHeader(), HttpStatus.OK);
     }
 }
