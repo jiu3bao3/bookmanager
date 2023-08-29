@@ -72,7 +72,8 @@ public class JobDao extends AbstractDao<JobHistory>
     public void deleteAll()
     {
         final String[] TABLES = { "BATCH_STEP_EXECUTION_CONTEXT", "BATCH_STEP_EXECUTION",
-            "BATCH_JOB_EXECUTION_CONTEXT", "BATCH_JOB_EXECUTION_PARAMS", "BATCH_JOB_EXECUTION" };
+            "BATCH_JOB_EXECUTION_CONTEXT", "BATCH_JOB_EXECUTION_PARAMS", "BATCH_JOB_EXECUTION",
+            "BATCH_JOB_INSTANCE" };
         try(Connection con = open();
             Statement stmt = con.createStatement())
         {
