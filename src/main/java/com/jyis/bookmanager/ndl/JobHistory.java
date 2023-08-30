@@ -4,6 +4,10 @@ package com.jyis.bookmanager.ndl;
 import java.io.Serializable;
 import java.util.Date;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * ジョブ実行履歴
+ * @author 久保　由仁
+ */
 public class JobHistory implements Serializable
 {
 	/** JOB_INSTANCE_ID */

@@ -64,7 +64,8 @@ public class NdlBookItemProcessor implements ItemProcessor<Book, NdlInfo>
             {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode jsonRoot = mapper.readTree(response.body());
-                JsonNode ndlInfomations = dig(jsonRoot.get(0), "onix", "CollateralDetail");
+                JsonNode ndlInfomations = NdlBookItemProcessor.dig(jsonRoot.get(0),
+                                                        "onix", "CollateralDetail");
                 if(ndlInfomations != null)
                 {
                     ndlInfo = packInfo(ndlInfomations, bookId, isbn);
@@ -93,7 +94,7 @@ public class NdlBookItemProcessor implements ItemProcessor<Book, NdlInfo>
      */
     private NdlInfo packInfo(final JsonNode json, final int bookId, final String isbn)
     {
-        JsonNode detailNode = dig(json, "TextContent");
+        JsonNode detailNode = NdlBookItemProcessor.dig(json, "TextContent");
         if(detailNode == null) return null;
         NdlInfo ndlInfo = new NdlInfo(bookId, isbn);
         for(JsonNode child : detailNode)
@@ -109,7 +110,7 @@ public class NdlBookItemProcessor implements ItemProcessor<Book, NdlInfo>
      * @param keys 探索するキー
      * @return みつかったノード（みつからなかった場合はnull）
      */
-    private JsonNode dig(final JsonNode node, final String... keys)
+    public static JsonNode dig(final JsonNode node, final String... keys)
     {
         if(node == null) return null;
         JsonNode child = node;
