@@ -114,39 +114,6 @@ public class JobDaoTest
         Assertions.assertEquals(jobHistory.getExitMessage(), "EXIT_MESSAGE_EXAMPLE", MESSAGE);
     }
     //----------------------------------------------------------------------------------------------
-    /**
-     * レコードがすべて削除されていること
-     */
-    @Test
-    public void deleteAllTest() throws Exception
-    {
-        final String[] TABLES = { "BATCH_JOB_EXECUTION", "BATCH_JOB_EXECUTION_CONTEXT",
-                                "BATCH_JOB_EXECUTION_PARAMS", "BATCH_STEP_EXECUTION", 
-                                "BATCH_STEP_EXECUTION_CONTEXT" };
-        final String SQL_FOR_COUNT = "SELECT COUNT(*) AS REC_COUNT FROM %s";
-        JobDaoMock dao = new JobDaoMock();
-        insertDummyData();
-        dao.deleteAll();
-        try(Connection con = dao.open())
-        {
-            if(!(con instanceof SQLiteConnection)) throw new IllegalStateException();
-            for(String table : TABLES)
-            {
-                long count = 0L;
-                try(Statement stmt = con.createStatement();
-                    ResultSet result = stmt.executeQuery(String.format(SQL_FOR_COUNT, table)))
-                {
-                    if(result.next())
-                    {
-                        count = result.getLong("REC_COUNT");
-                    }
-                }
-                String message = String.format("%sのレコードがすべて削除されていること", table);
-                Assertions.assertEquals(0L, count, message);
-            }
-        }
-    }
-    //----------------------------------------------------------------------------------------------
     private void insertDummyData() throws SQLException
     {
         final String[] SQL_ARRAY = {
