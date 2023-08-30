@@ -1,12 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 package com.jyis.bookmanager.ndl;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -89,5 +96,48 @@ public class JobDao extends AbstractDao<JobHistory>
         {
             throw new RuntimeException(e);
         }
+    }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * Spring Batchのジョブ管理用テーブルを（再）作成する
+     */
+    private void initialize()
+    {
+        try
+        {
+            executeSql(getSql("org/springframework/batch/core/schema-drop-sqlserver.sql"));
+            executeSql(getSql("org/springframework/batch/core/schema-sqlserver.sql"));
+        }
+        catch(IOException | SQLException e)
+        {
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * ファイルに記述されたSQLステートメントをListに格納して返す
+     * @param fileName fileName SQLステートメントが記述されたファイルのパス
+     * @return SQLステートメントのList
+     */
+    private List<String> getSql(final String fileName) throws IOException
+    {
+        StringBuilder sb = new StringBuilder();
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        try(InputStream stream = classLoader.getResourceAsStream(fileName);
+            InputStreamReader streamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+            BufferedReader buffer = new BufferedReader(streamReader))
+        {
+            String rec = null;
+            while((rec = buffer.readLine()) != null)
+            {
+                sb.append(rec);
+                sb.append("\n");
+            }
+        }
+        List<String> sqlList = Arrays.stream( sb.toString().split(";"))
+                                .filter(sql -> sql.trim().length() > 0)
+                                .collect(Collectors.toList());
+        return sqlList;
     }
 }

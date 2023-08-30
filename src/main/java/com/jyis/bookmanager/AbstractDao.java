@@ -118,4 +118,24 @@ public abstract class AbstractDao<T> implements IDao<T>
     {
         return pageNo * DEFALUT_PAGE_SIZE;
     }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * SQLを実行する
+     * @param sqlList SQLステートメントの配列
+     */
+    protected void executeSql(final List<String> sqlList) throws SQLException
+    {
+        try(Connection con = open())
+        {
+            for(String sql : sqlList)
+            {
+                try(Statement stmt = con.createStatement())
+                {
+                    logger.info(sql);
+                    stmt.execute(sql);
+                }
+            }
+            con.commit();
+        }
+    }
 }
