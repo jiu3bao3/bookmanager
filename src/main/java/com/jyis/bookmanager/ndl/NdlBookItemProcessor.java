@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.batch.item.ItemProcessor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -48,36 +49,45 @@ public class NdlBookItemProcessor implements ItemProcessor<Book, NdlInfo>
      * @param bookId BookのID
      * @return 取得した書誌情報を格納したNdlInfoオブジェクト
      */
-    private NdlInfo getNdlInfo(final String isbn, final int bookId)
+    private NdlInfo getNdlInfo(final String isbn, final int bookId) throws JsonProcessingException
     {
         if(isbn == null) return null;
         NdlInfo ndlInfo = null;
-        try 
+        HttpResponse<String> response = sendHttpRequest(isbn);
+        if(response.statusCode() == 200)
+        {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonRoot = mapper.readTree(response.body());
+            JsonNode ndlInfomations = NdlBookItemProcessor.dig(jsonRoot.get(0),
+                                                    "onix", "CollateralDetail");
+            if(ndlInfomations != null)
+            {
+                ndlInfo = packInfo(ndlInfomations, bookId, isbn);
+                if(ndlInfo != null) logger.info(ndlInfo.toString());
+            }
+        }
+        else
+        {
+            final String MESSAGE = "APIアクセスエラーが発生しました。STATUS=%s, 詳細：%s";
+            logger.error(String.format(MESSAGE, response.statusCode(), response.body()));
+        }
+        return ndlInfo;
+    }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * HTTPリクエストを送信する
+     * @param isbn ISBN
+     * @return HTTPのレスポンス
+     */
+    protected HttpResponse<String> sendHttpRequest(final String isbn)
+    {
+        try
         {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create(String.format(NDL_API_ENDPOINT, isbn)))
-                            .build();
-            HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
-            HttpResponse<String> response = client.send(request, handler);
-            if(response.statusCode() == 200)
-            {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode jsonRoot = mapper.readTree(response.body());
-                JsonNode ndlInfomations = NdlBookItemProcessor.dig(jsonRoot.get(0),
-                                                        "onix", "CollateralDetail");
-                if(ndlInfomations != null)
-                {
-                    ndlInfo = packInfo(ndlInfomations, bookId, isbn);
-                    if(ndlInfo != null) logger.info(ndlInfo.toString());
-                }
-            }
-            else
-            {
-                final String MESSAGE = "APIアクセスエラーが発生しました。STATUS=%s, 詳細：%s";
-                logger.error(String.format(MESSAGE, response.statusCode(), response.body()));
-            }
-            return ndlInfo;
+                        .uri(URI.create(String.format(NDL_API_ENDPOINT, isbn)))
+                        .build();
+            return client.send(request, HttpResponse.BodyHandlers.ofString());
         }
         catch(IOException | InterruptedException e)
         {
