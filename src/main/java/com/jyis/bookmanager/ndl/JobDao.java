@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -74,38 +76,29 @@ public class JobDao extends AbstractDao<JobHistory>
     }
     //---------------------------------------------------------------------------------------------
     /**
-     * ジョブ実行履歴をすべて削除する
+     * Spring Batchのジョブ管理用テーブルを（再）作成する
      */
     public void deleteAll()
     {
-        final String[] TABLES = { "BATCH_STEP_EXECUTION_CONTEXT", "BATCH_STEP_EXECUTION",
-            "BATCH_JOB_EXECUTION_CONTEXT", "BATCH_JOB_EXECUTION_PARAMS", "BATCH_JOB_EXECUTION",
-            "BATCH_JOB_INSTANCE" };
-        try(Connection con = open();
-            Statement stmt = con.createStatement())
-        {
-            for(String table : TABLES)
-            {
-                String sql = String.format("DELETE FROM %s", table);
-                logger.info(sql);
-                stmt.execute(sql);
-            }
-            con.commit();
-        }
-        catch(SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    //---------------------------------------------------------------------------------------------
-    /**
-     * Spring Batchのジョブ管理用テーブルを（再）作成する
-     */
-    private void initialize()
-    {
         try
         {
-            executeSql(getSql("org/springframework/batch/core/schema-drop-sqlserver.sql"));
+            List<String> sqlList = getSql("org/springframework/batch/core/schema-drop-sqlserver.sql");
+            Pattern pattern = Pattern.compile("IF\\s+EXISTS", Pattern.CASE_INSENSITIVE);
+            Pattern editPtn = Pattern.compile("DROP\\s+(.*)\\s+(.*)", Pattern.CASE_INSENSITIVE);
+            List<String> editSqlList = sqlList.stream().map(sql -> {
+                if(!pattern.matcher(sql).matches())
+                {
+                    Matcher matcher = editPtn.matcher(sql.trim());
+                    if(matcher.matches())
+                    {
+                        String objectType = matcher.group(2).endsWith("_SEQ") ? "SEQUENCE" : "TABLE";
+                        String edittedSql = matcher.replaceFirst("DROP %s IF EXISTS $2");
+                        sql = String.format(edittedSql, objectType);
+                    }
+                }
+                return sql;
+            }).collect(Collectors.toList());
+            executeSql(editSqlList);
             executeSql(getSql("org/springframework/batch/core/schema-sqlserver.sql"));
         }
         catch(IOException | SQLException e)

@@ -43,7 +43,16 @@ public final class NdlJobController extends AbstractController
         logger.info("ジョブ実行履歴一覧 START");
         NdlJobForm form = new NdlJobForm();
         ModelAndView modelAndView = new ModelAndView("jobs", "form", form);
-        List<JobHistory> jobList = service.getJobHistories(form);
+        List<JobHistory> jobList = null;
+        try
+        {
+            jobList = service.getJobHistories(form);
+        }
+        catch(Exception e)
+        {
+            logger.error("ジョブ一覧表示エラー", e);
+            form.setMessage(e.getMessage());
+        }
         modelAndView.addObject("jobHistories", jobList);
         logger.info("ジョブ実行履歴一覧 END");
         return modelAndView;

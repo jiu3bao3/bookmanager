@@ -131,7 +131,7 @@ public abstract class AbstractDao<T> implements IDao<T>
             {
                 try(Statement stmt = con.createStatement())
                 {
-                    logger.info(sql);
+                    logger.info(String.format("executing SQL. %s", sql));
                     stmt.execute(sql);
                 }
             }
