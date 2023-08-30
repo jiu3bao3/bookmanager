@@ -57,6 +57,7 @@
 			<thead>
 				<tr class="cell">
 					<th class="cell" style="width:5em;">ID</th>
+					<th class="cell" style="width:8em;">読書日</th>
 					<th class="cell">タイトル</th>
 					<th class="cell" style="width:10em;">著者</th>
 					<th class="cell" style="width:5em;">出版社</th>
@@ -68,6 +69,7 @@
 			<tbody>
 				<tr class="cell" th:each="book : ${bookList}" th:object="${book}">
 					<td th:text="*{id}" class="cell"></td>
+					<td th:text="*{readDate}" class="cell"></td>
 					<td th:text="*{title}" class="cell"></td>
 					<td th:text="*{author}" class="cell"></td>
 					<td th:text="*{publisherName}" class="cell"></td>

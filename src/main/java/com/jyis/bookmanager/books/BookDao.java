@@ -69,6 +69,7 @@ public class BookDao extends AbstractDao<Book>
                     book.setId(results.getInt("id"));
                     book.setPublisherName(results.getString("publisher"));
                     book.setPublishedYear(results.getInt("published_on"));
+                    book.setReadDate(results.getDate("read_on"));
                     bookList.add(book);
                 }
             }

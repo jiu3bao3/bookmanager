@@ -2,6 +2,7 @@
 package com.jyis.bookmanager.books;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 import java.io.Serializable;
+import java.util.Date;
 
 import com.jyis.bookmanager.publishers.Publisher;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,6 +26,9 @@ public class Book extends AbstractBook implements Serializable
     
     /** 内容 */
     private String contents;
+
+    /** 読了日 */
+    private Date readDate;
     //----------------------------------------------------------------------------------------------
     /**
      * IDをセットする
@@ -149,5 +153,23 @@ public class Book extends AbstractBook implements Serializable
     public String getContents()
     {
         return contents;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 読了日をセットする
+     * @param arg 読了日
+     */
+    public void setReadDate(final Date arg)
+    {
+        readDate = arg;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 読了日を取得する
+     * @return 読了日
+     */
+    public Date getReadDate()
+    {
+        return readDate;
     }
 }
