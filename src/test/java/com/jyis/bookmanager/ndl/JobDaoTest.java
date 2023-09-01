@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
 import java.util.List;
+import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import org.sqlite.SQLiteConnection;
+import org.sqlite.SQLiteDataSource;
 
 import com.jyis.bookmanager.AbstractDaoImpl;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,5 +171,18 @@ class JobDaoMock extends JobDao
             throw new RuntimeException(e);
         }
         return con;
+    }
+    //---------------------------------------------------------------------------------------------
+    @Override
+    protected DataSource getDatasouce()
+    {
+        SQLiteDataSource ds = new SQLiteDataSource();
+        ds.setUrl(String.format("jdbc:sqlite:%s", AbstractDaoImpl.SQLITE_FILE_PATH));
+        return ds;
+    }
+    //---------------------------------------------------------------------------------------------
+    public DataSource getTestDataSource()
+    {
+        return this.getDatasouce();
     }
 }
