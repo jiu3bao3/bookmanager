@@ -152,6 +152,8 @@ public class JobDaoTest
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class JobDaoMock extends JobDao
 {
+    private static final String CREATE_SQL = "org/springframework/batch/core/schema-sqlite.sql";
+    private static final String DROP_SQL = "org/springframework/batch/core/schema-drop-sqlite.sql";
     public Connection open()
     {
         Connection con = null;
@@ -179,6 +181,18 @@ class JobDaoMock extends JobDao
         SQLiteDataSource ds = new SQLiteDataSource();
         ds.setUrl(String.format("jdbc:sqlite:%s", AbstractDaoImpl.SQLITE_FILE_PATH));
         return ds;
+    }
+    //---------------------------------------------------------------------------------------------
+    @Override
+    protected String getCreateSQL()
+    {
+        return JobDaoMock.CREATE_SQL;
+    }
+    //---------------------------------------------------------------------------------------------
+    @Override
+    protected String getDropSQL()
+    {
+        return JobDaoMock.DROP_SQL;
     }
     //---------------------------------------------------------------------------------------------
     public DataSource getTestDataSource()

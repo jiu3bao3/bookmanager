@@ -18,6 +18,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
 
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,13 @@ public class JobDao extends AbstractDao<JobHistory>
 {
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(JobDao.class);
+
+    /** SQL Server用のSpring Batchのジョブ管理テーブルスキーマ定義 */
+    private static final String CREATE_SQL = "org/springframework/batch/core/schema-sqlserver.sql";
+
+    /** SQL Server用のSpring Batchのジョブ管理テーブルスキーマ定義削除スクリプト */
+    private static final String DROP_SQL = 
+                                    "org/springframework/batch/core/schema-drop-sqlserver.sql";
     //---------------------------------------------------------------------------------------------
     public void insert(JobHistory arg) { throw new UnsupportedOperationException(); }
     public void delete(JobHistory arg) { throw new UnsupportedOperationException(); }
@@ -82,30 +91,63 @@ public class JobDao extends AbstractDao<JobHistory>
     {
         try
         {
-            List<String> sqlList = getSql("org/springframework/batch/core/schema-drop-sqlserver.sql");
-            Pattern pattern = Pattern.compile("IF\\s+EXISTS", Pattern.CASE_INSENSITIVE);
-            Pattern editPtn = Pattern.compile("DROP\\s+(.*)\\s+(.*)", Pattern.CASE_INSENSITIVE);
-            List<String> editSqlList = sqlList.stream().map(sql -> {
-                if(!pattern.matcher(sql).matches())
-                {
-                    Matcher matcher = editPtn.matcher(sql.trim());
-                    if(matcher.matches())
-                    {
-                        String objectType = matcher.group(2).endsWith("_SEQ") ? "SEQUENCE" : "TABLE";
-                        String edittedSql = matcher.replaceFirst("DROP %s IF EXISTS $2");
-                        sql = String.format(edittedSql, objectType);
-                    }
-                }
-                return sql;
-            }).collect(Collectors.toList());
+            List<String> editSqlList = correctSql(getSql(getDropSQL()));
             executeSql(editSqlList);
-            executeSql(getSql("org/springframework/batch/core/schema-sqlserver.sql"));
+            executeSql(getSql(getCreateSQL()));
         }
         catch(IOException | SQLException e)
         {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * SQLを修正する
+     * オブジェクトが存在しない場合に重ねてDROPを試みてもエラーを発生させないように修正する
+     * @param sqlList SQLステートメントのList
+     * @return 修正したSQLのList
+     */
+    protected List<String> correctSql(List<String> sqlList)
+    {
+        if(!(getDatasouce() instanceof SQLServerDataSource))
+        {
+            return sqlList;
+        }
+        Pattern pattern = Pattern.compile("IF\\s+EXISTS", Pattern.CASE_INSENSITIVE);
+        Pattern editPtn = Pattern.compile("DROP\\s+(.*)\\s+(.*)", Pattern.CASE_INSENSITIVE);
+        List<String> editSqlList = sqlList.stream().map(sql -> {
+            if(!pattern.matcher(sql).matches())
+            {
+                Matcher matcher = editPtn.matcher(sql.trim());
+                if(matcher.matches())
+                {
+                    String objectType = matcher.group(2).endsWith("_SEQ") ? "SEQUENCE" : "TABLE";
+                    String edittedSql = matcher.replaceFirst("DROP %s IF EXISTS $2");
+                    sql = String.format(edittedSql, objectType);
+                }
+            }
+            return sql;
+        }).collect(Collectors.toList());
+        return editSqlList;
+    }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * Spring Batchの管理テーブルを作成するSQLファイルのパスを返す
+     * @return Spring Batchの管理テーブルを作成するSQLファイルのパス
+     */
+    protected String getCreateSQL()
+    {
+        return JobDao.CREATE_SQL;
+    }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * Spring Batchの管理テーブルを削除するSQLファイルのパスを返す
+     * @return Spring Batchの管理テーブルを削除するSQLファイルのパス
+     */
+    protected String getDropSQL()
+    {
+        return JobDao.DROP_SQL;
     }
     //---------------------------------------------------------------------------------------------
     /**
