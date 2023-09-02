@@ -64,7 +64,6 @@ public class NdlJobService
     public String deleteJobHistories()
     {
         jobDao.deleteAll();
-        String json = "{ \"message\": \"ジョブ実行履歴を削除しました。\"}";
-        return json;
+        return "{ \"message\": \"ジョブ実行履歴を削除しました。\"}";
     }
 }
