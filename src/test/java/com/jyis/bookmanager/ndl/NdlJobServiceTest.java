@@ -22,7 +22,7 @@ public class NdlJobServiceTest
      * ジョブ履歴削除を実行できること
      */
     @Test
-    public void launchTest() throws Exception
+    public void deleteJobHistoriesTest() throws Exception
     {
         final String MESSAGE = "ジョブ履歴削除を実行できること";
         NdlJobService service = buildService();

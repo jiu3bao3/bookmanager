@@ -182,11 +182,13 @@ class JobDaoMock extends JobDao
         ds.setUrl(String.format("jdbc:sqlite:%s", AbstractDaoImpl.SQLITE_FILE_PATH));
         return ds;
     }
+    //---------------------------------------------------------------------------------------------
     @Override
     protected String getCreateSQL()
     {
         return JobDaoMock.CREATE_SQL;
     }
+    //---------------------------------------------------------------------------------------------
     @Override
     protected String getDropSQL()
     {
