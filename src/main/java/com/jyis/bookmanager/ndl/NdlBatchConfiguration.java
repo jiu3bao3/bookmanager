@@ -58,8 +58,7 @@ public class NdlBatchConfiguration
     public Job ndlInfoObtainingJob(JobRepository jobRepository, Step step)
     {
         JobBuilder builder = new JobBuilder("NDL-JOB", jobRepository);
-        Job job = builder.incrementer(new RunIdIncrementer()).flow(step).end().build();
-        return job;
+        return builder.incrementer(new RunIdIncrementer()).flow(step).end().build();
     }
     //---------------------------------------------------------------------------------------------
     /**

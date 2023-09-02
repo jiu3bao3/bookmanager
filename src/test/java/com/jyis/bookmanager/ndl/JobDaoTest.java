@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
+import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteConnection;
 import org.sqlite.SQLiteDataSource;
 
@@ -175,10 +176,16 @@ class JobDaoMock extends JobDao
         return con;
     }
     //---------------------------------------------------------------------------------------------
+    /**
+     * テスト用のデータソースを取得する
+     * @return テスト用データソース
+     */
     @Override
     protected DataSource getDatasouce()
     {
         SQLiteDataSource ds = new SQLiteDataSource();
+        SQLiteConfig sqliteConfig = ds.getConfig();
+        sqliteConfig.setBusyTimeout(1000);
         ds.setUrl(String.format("jdbc:sqlite:%s", AbstractDaoImpl.SQLITE_FILE_PATH));
         return ds;
     }
