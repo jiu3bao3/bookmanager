@@ -35,6 +35,8 @@ public class PublisherDaoTest
 
     /** テーブルクリア用SQL */
     private static final String[] CLEAR_SQL = new String[] { "DELETE FROM publishers" };
+
+    private static final Object lock = new Object();
     //----------------------------------------------------------------------------------------------
     /**
      * テストに用いたデータを削除する
@@ -42,27 +44,30 @@ public class PublisherDaoTest
     @AfterEach
     public void clearData() throws Exception
     {
-        PublisherDaoMock dao = new PublisherDaoMock();
-        try(Connection con = dao.open();
-            Statement stmt = con.createStatement())
+        synchronized(lock)
         {
-            for(String sql : CLEAR_SQL)
+            PublisherDaoMock dao = new PublisherDaoMock();
+            try(Connection con = dao.open();
+                Statement stmt = con.createStatement())
             {
-                for(int i = 0; i < RETRY_COUNT; i++)
+                for(String sql : CLEAR_SQL)
                 {
-                    try
+                    for(int i = 0; i < RETRY_COUNT; i++)
                     {
-                        stmt.execute(sql);
-                        break;
-                    }
-                    catch(PersistenceException e)
-                    {
-                        Thread.sleep(1000 * i * i);
-                        continue;
+                        try
+                        {
+                            stmt.execute(sql);
+                            break;
+                        }
+                        catch(PersistenceException e)
+                        {
+                            Thread.sleep(200 * i * i);
+                            continue;
+                        }
                     }
                 }
+                con.commit();
             }
-            con.commit();
         }
     }
     //----------------------------------------------------------------------------------------------
@@ -72,10 +77,13 @@ public class PublisherDaoTest
     @Test
     public void openTest() throws Exception
     {
-        PublisherDaoMock dao = new PublisherDaoMock();
-        try(Connection con = dao.open())
+        synchronized(lock)
         {
-            Assertions.assertTrue(con instanceof SQLiteConnection);
+            PublisherDaoMock dao = new PublisherDaoMock();
+            try(Connection con = dao.open())
+            {
+                Assertions.assertTrue(con instanceof SQLiteConnection);
+            }
         }
     }
     //----------------------------------------------------------------------------------------------
@@ -85,32 +93,35 @@ public class PublisherDaoTest
     @Test
     public void insertTest() throws Exception
     {
-        Publisher publisher = createPublisher();
-        PublisherDao dao = new PublisherDaoMock();
-        for(int i = 0; i < RETRY_COUNT; i++)
+        synchronized(lock)
         {
-            try
+            Publisher publisher = createPublisher();
+            PublisherDao dao = new PublisherDaoMock();
+            for(int i = 0; i < RETRY_COUNT; i++)
             {
-                dao.insert(publisher);
-                break;
+                try
+                {
+                    dao.insert(publisher);
+                    break;
+                }
+                catch(PersistenceException e)
+                {
+                    Thread.sleep(1000 * i * i);
+                    continue;
+                }
             }
-            catch(PersistenceException e)
+            int count = 0;
+            try(Connection con = ((PublisherDaoMock)dao).open();
+                Statement stmt = con.createStatement())
             {
-                Thread.sleep(1000 * i * i);
-                continue;
+                ResultSet result = stmt.executeQuery("SELECT COUNT(*) FROM publishers");
+                if(result.next())
+                {
+                    count = result.getInt(1);
+                }
             }
+            Assertions.assertTrue(count > 0, "レコードを追加できること");
         }
-        int count = 0;
-        try(Connection con = ((PublisherDaoMock)dao).open();
-            Statement stmt = con.createStatement())
-        {
-            ResultSet result = stmt.executeQuery("SELECT COUNT(*) FROM publishers");
-            if(result.next())
-            {
-                count = result.getInt(1);
-            }
-        }
-        Assertions.assertTrue(count > 0, "レコードを追加できること");
     }
     //----------------------------------------------------------------------------------------------
     /**
@@ -119,28 +130,31 @@ public class PublisherDaoTest
     @Test
     public void selectOneByNameTest() throws Exception
     {
-        PublisherDao dao = new PublisherDaoMock();
-        Publisher publisher = createPublisher();
-        for(int i = 0; i < RETRY_COUNT; i++)
+        synchronized(lock)
         {
-            try
+            PublisherDao dao = new PublisherDaoMock();
+            Publisher publisher = createPublisher();
+            for(int i = 0; i < RETRY_COUNT; i++)
             {
-                dao.insert(publisher);
-                break;
+                try
+                {
+                    dao.insert(publisher);
+                    break;
+                }
+                catch(PersistenceException e)
+                {
+                    Thread.sleep(1000 * i * i);
+                    continue;
+                }
             }
-            catch(PersistenceException e)
-            {
-                Thread.sleep(1000 * i * i);
-                continue;
-            }
+            Publisher selectedPublisher = dao.selectOne(new Publisher(publisher.getName()));
+            Assertions.assertEquals(selectedPublisher.getName(), publisher.getName());
+            Assertions.assertEquals(selectedPublisher.getZip(), publisher.getZip());
+            Assertions.assertEquals(selectedPublisher.getAddress1(), publisher.getAddress1());
+            Assertions.assertEquals(selectedPublisher.getAddress2(), publisher.getAddress2());
+            Assertions.assertEquals(selectedPublisher.getPhone(), publisher.getPhone());
+            Assertions.assertEquals(selectedPublisher.getEmail(), publisher.getEmail());
         }
-        Publisher selectedPublisher = dao.selectOne(new Publisher(publisher.getName()));
-        Assertions.assertEquals(selectedPublisher.getName(), publisher.getName());
-        Assertions.assertEquals(selectedPublisher.getZip(), publisher.getZip());
-        Assertions.assertEquals(selectedPublisher.getAddress1(), publisher.getAddress1());
-        Assertions.assertEquals(selectedPublisher.getAddress2(), publisher.getAddress2());
-        Assertions.assertEquals(selectedPublisher.getPhone(), publisher.getPhone());
-        Assertions.assertEquals(selectedPublisher.getEmail(), publisher.getEmail());
     }
     //----------------------------------------------------------------------------------------------
     /**
@@ -149,16 +163,31 @@ public class PublisherDaoTest
     @Test
     public void selectAllTestByEmpty() throws Exception
     {
-        final int size = 5;
-        PublisherDao dao = new PublisherDaoMock();
-        for(int i = 0; i < size; i++)
+        synchronized(lock)
         {
-            Publisher publisher = createPublisher();
-            publisher.setName(String.format("テスト出版%d", i + 1));
-            dao.insert(publisher);
+            final int size = 5;
+            PublisherDao dao = new PublisherDaoMock();
+            for(int i = 0; i < size; i++)
+            {
+                Publisher publisher = createPublisher();
+                publisher.setName(String.format("テスト出版%d", i + 1));
+                for(int j = 0; j < RETRY_COUNT; j++)
+                {
+                    try
+                    {
+                        dao.insert(publisher);
+                        break;
+                    }
+                    catch(PersistenceException e)
+                    {
+                        Thread.sleep(100 * j * j);
+                        continue;
+                    }
+                }
+            }
+            List<Publisher> list = dao.selectAll(null);
+            Assertions.assertEquals(list.size(), size);
         }
-        List<Publisher> list = dao.selectAll(null);
-        Assertions.assertEquals(list.size(), size);
     }
     //----------------------------------------------------------------------------------------------
     /**
@@ -167,16 +196,31 @@ public class PublisherDaoTest
     @Test
     public void selectAllTestByName() throws Exception
     {
-        String[] publisher_names = new String[] { "テスト出版１", "テスト出版２", "TEST PUBLISHING 1", "テストパブリッシング" };
-        PublisherDao dao = new PublisherDaoMock();
-        for(String name : publisher_names)
+        synchronized(lock)
         {
-            Publisher publisher = createPublisher();
-            publisher.setName(name);
-            dao.insert(publisher);
+            String[] publisher_names = new String[] { "テスト出版１", "テスト出版２", "TEST PUBLISHING 1", "テストパブリッシング" };
+            PublisherDao dao = new PublisherDaoMock();
+            for(String name : publisher_names)
+            {
+                Publisher publisher = createPublisher();
+                publisher.setName(name);
+                for(int i = 0; i < RETRY_COUNT; i++)
+                {
+                    try
+                    {
+                        dao.insert(publisher);
+                        break;
+                    }
+                    catch(PersistenceException e)
+                    {
+                        Thread.sleep(100 * i * i);
+                        continue;
+                    }
+                }
+            }
+            List<Publisher> list = dao.selectAll(new SearchForm("テスト出版"));
+            Assertions.assertEquals(list.size(), 2);
         }
-        List<Publisher> list = dao.selectAll(new SearchForm("テスト出版"));
-        Assertions.assertEquals(list.size(), 2);
     }
     //----------------------------------------------------------------------------------------------
     /**
@@ -185,32 +229,15 @@ public class PublisherDaoTest
     @Test
     public void updateTest() throws Exception
     {
-        final String newAddress = "引っ越しました";
-        PublisherDao dao = new PublisherDaoMock();
-        for(int i = 0; i < RETRY_COUNT; i++)
+        synchronized(lock)
         {
-            try
-            {
-                dao.insert(createPublisher());
-                break;
-            }
-            catch(PersistenceException e)
-            {
-                Thread.sleep(1000 * i * i);
-                continue;
-            }
-        }
-        List<Publisher> list = dao.selectAll(null);
-        Integer id = null;
-        for(Publisher publisher: list)
-        {
-            id = publisher.getId();
-            publisher.setAddress1(newAddress);
+            final String newAddress = "引っ越しました";
+            PublisherDao dao = new PublisherDaoMock();
             for(int i = 0; i < RETRY_COUNT; i++)
             {
                 try
                 {
-                    dao.update(publisher);
+                    dao.insert(createPublisher());
                     break;
                 }
                 catch(PersistenceException e)
@@ -219,9 +246,29 @@ public class PublisherDaoTest
                     continue;
                 }
             }
+            List<Publisher> list = dao.selectAll(null);
+            Integer id = null;
+            for(Publisher publisher: list)
+            {
+                id = publisher.getId();
+                publisher.setAddress1(newAddress);
+                for(int i = 0; i < RETRY_COUNT; i++)
+                {
+                    try
+                    {
+                        dao.update(publisher);
+                        break;
+                    }
+                    catch(PersistenceException e)
+                    {
+                        Thread.sleep(1000 * i * i);
+                        continue;
+                    }
+                }
+            }
+            Publisher selectedPublisher = dao.selectOne(id);
+            Assertions.assertEquals(newAddress, selectedPublisher.getAddress1());
         }
-        Publisher selectedPublisher = dao.selectOne(id);
-        Assertions.assertEquals(newAddress, selectedPublisher.getAddress1());
     }
     //----------------------------------------------------------------------------------------------
     /**
@@ -230,16 +277,14 @@ public class PublisherDaoTest
     @Test
     public void deleteTest() throws Exception
     {
-        PublisherDao dao = new PublisherDaoMock();
-        dao.insert(createPublisher());
-        List<Publisher> list = dao.selectAll(null);
-        for(Publisher publisher : list)
+        synchronized(lock)
         {
+            PublisherDao dao = new PublisherDaoMock();
             for(int i = 0; i < RETRY_COUNT; i++)
             {
                 try
                 {
-                    dao.deleteById(publisher.getId());
+                    dao.insert(createPublisher());
                     break;
                 }
                 catch(PersistenceException e)
@@ -248,8 +293,25 @@ public class PublisherDaoTest
                     continue;
                 }
             }
-            Publisher result = dao.selectOne(publisher);
-            Assertions.assertEquals(null, result);
+            List<Publisher> list = dao.selectAll(null);
+            for(Publisher publisher : list)
+            {
+                for(int i = 0; i < RETRY_COUNT; i++)
+                {
+                    try
+                    {
+                        dao.deleteById(publisher.getId());
+                        break;
+                    }
+                    catch(PersistenceException e)
+                    {
+                        Thread.sleep(1000 * i * i);
+                        continue;
+                    }
+                }
+                Publisher result = dao.selectOne(publisher);
+                Assertions.assertEquals(null, result);
+            }
         }
     }
     //----------------------------------------------------------------------------------------------
