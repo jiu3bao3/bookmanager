@@ -68,7 +68,14 @@ public class PublisherService
         Publisher existingPublisher = publisherDao.selectOne(arg);
         if(existingPublisher == null)
         {
-            publisherDao.insert(arg);
+            try
+            {
+                publisherDao.insert(arg);
+            }
+            catch(Exception e)
+            {
+                throw new RuntimeException(e);
+            }
             publisher = publisherDao.selectOne(arg);
         }
         else

@@ -11,11 +11,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.sqlite.Function;
+import org.sqlite.SQLiteConfig;
+import org.sqlite.SQLiteConnection;
+import org.sqlite.SQLiteDataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -79,19 +83,32 @@ public final class AbstractDaoImpl<T> extends AbstractDao<T> implements IDao<T>
         Connection con = null;
         try
         {
-            Class.forName("org.sqlite.JDBC");
-            con = DriverManager.getConnection(String.format("jdbc:sqlite:%s", SQLITE_FILE_PATH));
+            DataSource ds = AbstractDaoImpl.getDataSource();
+            con = ds.getConnection();
             con.setAutoCommit(false);
             createTables(con);
             createFunctions(con);
             con.commit();
         }
-        catch(SQLException |ClassNotFoundException e)
+        catch(SQLException e)
         {
             logger.error("テストデータベースへの接続に失敗しました。", e);
             throw new RuntimeException(e);
         }
         return con;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * テスト用のデータソースを取得する
+     * @return データソース
+     */
+    public static DataSource getDataSource()
+    {
+        SQLiteDataSource ds = new SQLiteDataSource();
+        SQLiteConfig sqliteConfig = ds.getConfig();
+        sqliteConfig.setBusyTimeout(6_000);
+        ds.setUrl(String.format("jdbc:sqlite:%s", SQLITE_FILE_PATH));
+        return ds;
     }
     //----------------------------------------------------------------------------------------------
     /**

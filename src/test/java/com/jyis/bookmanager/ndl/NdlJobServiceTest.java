@@ -25,6 +25,8 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.JdbcTransactionManager;
 import org.springframework.scheduling.concurrent.DefaultManagedTaskExecutor;
+
+import com.jyis.bookmanager.AbstractDaoImpl;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * NdlJobServiceのテスト
@@ -120,7 +122,7 @@ class NdlTestBatchConfiguration extends NdlBatchConfiguration
     @Override
     protected DataSource getDatasouce()
     {
-        return jobDaoMock.getTestDataSource();
+        return AbstractDaoImpl.getDataSource();
     }
     //---------------------------------------------------------------------------------------------
     /**
@@ -130,7 +132,7 @@ class NdlTestBatchConfiguration extends NdlBatchConfiguration
     public JobRepository jobRepository() throws Exception
     {
         JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
-        DataSource ds = jobDaoMock.getTestDataSource();
+        DataSource ds = AbstractDaoImpl.getDataSource();
         factory.setDataSource(ds);
         factory.setDatabaseType(DatabaseType.SQLITE.getProductName());
         factory.setTransactionManager(new JdbcTransactionManager(ds));

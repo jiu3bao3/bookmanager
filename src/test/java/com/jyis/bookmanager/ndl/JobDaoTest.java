@@ -183,11 +183,7 @@ class JobDaoMock extends JobDao
     @Override
     protected DataSource getDatasouce()
     {
-        SQLiteDataSource ds = new SQLiteDataSource();
-        SQLiteConfig sqliteConfig = ds.getConfig();
-        sqliteConfig.setBusyTimeout(1000);
-        ds.setUrl(String.format("jdbc:sqlite:%s", AbstractDaoImpl.SQLITE_FILE_PATH));
-        return ds;
+        return AbstractDaoImpl.getDataSource();
     }
     //---------------------------------------------------------------------------------------------
     @Override
@@ -200,10 +196,5 @@ class JobDaoMock extends JobDao
     protected String getDropSQL()
     {
         return JobDaoMock.DROP_SQL;
-    }
-    //---------------------------------------------------------------------------------------------
-    public DataSource getTestDataSource()
-    {
-        return this.getDatasouce();
     }
 }

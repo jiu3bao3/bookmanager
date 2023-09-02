@@ -44,10 +44,10 @@ public class NdlBookItemWriterTest
         final String MESSAGE = "書誌情報テーブルにデータが書き込まれていること";
         final int BOOK_COUNT = 3;
         JobDaoMock dao = new JobDaoMock();
-        NdlBookItemWriter writer = new NdlBookItemWriter(dao.getTestDataSource());
+        NdlBookItemWriter writer = new NdlBookItemWriter(AbstractDaoImpl.getDataSource());
         Chunk<NdlInfo> chunk = createChunk(BOOK_COUNT);
         writer.write(chunk);
-        List<Map<String, Object>> results = getExtraInfoTable(dao.getTestDataSource());
+        List<Map<String, Object>> results = getExtraInfoTable(AbstractDaoImpl.getDataSource());
         Assertions.assertEquals(results.size(), BOOK_COUNT * 2, MESSAGE);
         for(Map<String, Object> record : results)
         {

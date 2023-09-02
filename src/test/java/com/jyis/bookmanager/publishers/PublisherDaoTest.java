@@ -2,8 +2,10 @@
 package com.jyis.bookmanager.publishers;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
@@ -13,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -20,10 +24,15 @@ import org.sqlite.SQLiteConnection;
 
 import com.jyis.bookmanager.AbstractDaoImpl;
 import com.jyis.bookmanager.IDao;
+import com.jyis.bookmanager.exceptions.PersistenceException;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 @SpringBootTest
+@Execution(ExecutionMode.SAME_THREAD)
 public class PublisherDaoTest
 {
+    /** DBがロックされていた場合にリトライする回数の上限 */
+    private static final int RETRY_COUNT = 5;
+
     /** テーブルクリア用SQL */
     private static final String[] CLEAR_SQL = new String[] { "DELETE FROM publishers" };
     //----------------------------------------------------------------------------------------------
@@ -39,7 +48,19 @@ public class PublisherDaoTest
         {
             for(String sql : CLEAR_SQL)
             {
-                stmt.execute(sql);
+                for(int i = 0; i < RETRY_COUNT; i++)
+                {
+                    try
+                    {
+                        stmt.execute(sql);
+                        break;
+                    }
+                    catch(PersistenceException e)
+                    {
+                        Thread.sleep(1000 * i * i);
+                        continue;
+                    }
+                }
             }
             con.commit();
         }
@@ -64,9 +85,21 @@ public class PublisherDaoTest
     @Test
     public void insertTest() throws Exception
     {
-        PublisherDao dao = new PublisherDaoMock();
         Publisher publisher = createPublisher();
-        dao.insert(publisher);
+        PublisherDao dao = new PublisherDaoMock();
+        for(int i = 0; i < RETRY_COUNT; i++)
+        {
+            try
+            {
+                dao.insert(publisher);
+                break;
+            }
+            catch(PersistenceException e)
+            {
+                Thread.sleep(1000 * i * i);
+                continue;
+            }
+        }
         int count = 0;
         try(Connection con = ((PublisherDaoMock)dao).open();
             Statement stmt = con.createStatement())
@@ -88,7 +121,19 @@ public class PublisherDaoTest
     {
         PublisherDao dao = new PublisherDaoMock();
         Publisher publisher = createPublisher();
-        dao.insert(publisher);
+        for(int i = 0; i < RETRY_COUNT; i++)
+        {
+            try
+            {
+                dao.insert(publisher);
+                break;
+            }
+            catch(PersistenceException e)
+            {
+                Thread.sleep(1000 * i * i);
+                continue;
+            }
+        }
         Publisher selectedPublisher = dao.selectOne(new Publisher(publisher.getName()));
         Assertions.assertEquals(selectedPublisher.getName(), publisher.getName());
         Assertions.assertEquals(selectedPublisher.getZip(), publisher.getZip());
@@ -142,14 +187,38 @@ public class PublisherDaoTest
     {
         final String newAddress = "引っ越しました";
         PublisherDao dao = new PublisherDaoMock();
-        dao.insert(createPublisher());
+        for(int i = 0; i < RETRY_COUNT; i++)
+        {
+            try
+            {
+                dao.insert(createPublisher());
+                break;
+            }
+            catch(PersistenceException e)
+            {
+                Thread.sleep(1000 * i * i);
+                continue;
+            }
+        }
         List<Publisher> list = dao.selectAll(null);
         Integer id = null;
         for(Publisher publisher: list)
         {
             id = publisher.getId();
             publisher.setAddress1(newAddress);
-            dao.update(publisher);
+            for(int i = 0; i < RETRY_COUNT; i++)
+            {
+                try
+                {
+                    dao.update(publisher);
+                    break;
+                }
+                catch(PersistenceException e)
+                {
+                    Thread.sleep(1000 * i * i);
+                    continue;
+                }
+            }
         }
         Publisher selectedPublisher = dao.selectOne(id);
         Assertions.assertEquals(newAddress, selectedPublisher.getAddress1());
@@ -166,7 +235,19 @@ public class PublisherDaoTest
         List<Publisher> list = dao.selectAll(null);
         for(Publisher publisher : list)
         {
-            dao.deleteById(publisher.getId());
+            for(int i = 0; i < RETRY_COUNT; i++)
+            {
+                try
+                {
+                    dao.deleteById(publisher.getId());
+                    break;
+                }
+                catch(PersistenceException e)
+                {
+                    Thread.sleep(1000 * i * i);
+                    continue;
+                }
+            }
             Publisher result = dao.selectOne(publisher);
             Assertions.assertEquals(null, result);
         }
@@ -193,6 +274,7 @@ public class PublisherDaoTest
  */
 class PublisherDaoMock extends PublisherDao implements IDao<Publisher>
 {
+    private static final int RETRY_COUNT = 3;
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(PublisherDao.class);
     //----------------------------------------------------------------------------------------------
@@ -208,13 +290,26 @@ class PublisherDaoMock extends PublisherDao implements IDao<Publisher>
             AbstractDaoImpl daoImpl = new AbstractDaoImpl();
             Method method = daoImpl.getClass().getDeclaredMethod("open");
             method.setAccessible(true);
-            Object obj = method.invoke(daoImpl);
+            Object obj = null;
+            for(int i = 0; i < RETRY_COUNT; i++)
+            {
+                try
+                {
+                    obj = method.invoke(daoImpl);
+                    break;
+                }
+                catch(InvocationTargetException e)
+                {
+                    Thread.sleep(1000 * i * i);
+                    continue;
+                }
+            }
             if(obj instanceof Connection)
             {
                 con = (Connection)obj;
             }
         }
-        catch(ReflectiveOperationException e)
+        catch(ReflectiveOperationException | InterruptedException e)
         {
             throw new RuntimeException(e);
         }
