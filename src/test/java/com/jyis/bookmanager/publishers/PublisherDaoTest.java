@@ -36,6 +36,7 @@ public class PublisherDaoTest
     /** テーブルクリア用SQL */
     private static final String[] CLEAR_SQL = new String[] { "DELETE FROM publishers" };
 
+    /** ロック（処理が競合しないようロックする） */
     private static final Object lock = new Object();
     //----------------------------------------------------------------------------------------------
     /**
@@ -97,19 +98,7 @@ public class PublisherDaoTest
         {
             Publisher publisher = createPublisher();
             PublisherDao dao = new PublisherDaoMock();
-            for(int i = 0; i < RETRY_COUNT; i++)
-            {
-                try
-                {
-                    dao.insert(publisher);
-                    break;
-                }
-                catch(PersistenceException e)
-                {
-                    Thread.sleep(1000 * i * i);
-                    continue;
-                }
-            }
+            dao.insert(publisher);
             int count = 0;
             try(Connection con = ((PublisherDaoMock)dao).open();
                 Statement stmt = con.createStatement())
@@ -134,19 +123,7 @@ public class PublisherDaoTest
         {
             PublisherDao dao = new PublisherDaoMock();
             Publisher publisher = createPublisher();
-            for(int i = 0; i < RETRY_COUNT; i++)
-            {
-                try
-                {
-                    dao.insert(publisher);
-                    break;
-                }
-                catch(PersistenceException e)
-                {
-                    Thread.sleep(1000 * i * i);
-                    continue;
-                }
-            }
+            dao.insert(publisher);
             Publisher selectedPublisher = dao.selectOne(new Publisher(publisher.getName()));
             Assertions.assertEquals(selectedPublisher.getName(), publisher.getName());
             Assertions.assertEquals(selectedPublisher.getZip(), publisher.getZip());
@@ -171,19 +148,7 @@ public class PublisherDaoTest
             {
                 Publisher publisher = createPublisher();
                 publisher.setName(String.format("テスト出版%d", i + 1));
-                for(int j = 0; j < RETRY_COUNT; j++)
-                {
-                    try
-                    {
-                        dao.insert(publisher);
-                        break;
-                    }
-                    catch(PersistenceException e)
-                    {
-                        Thread.sleep(100 * j * j);
-                        continue;
-                    }
-                }
+                dao.insert(publisher);
             }
             List<Publisher> list = dao.selectAll(null);
             Assertions.assertEquals(list.size(), size);
@@ -204,19 +169,7 @@ public class PublisherDaoTest
             {
                 Publisher publisher = createPublisher();
                 publisher.setName(name);
-                for(int i = 0; i < RETRY_COUNT; i++)
-                {
-                    try
-                    {
-                        dao.insert(publisher);
-                        break;
-                    }
-                    catch(PersistenceException e)
-                    {
-                        Thread.sleep(100 * i * i);
-                        continue;
-                    }
-                }
+                dao.insert(publisher);
             }
             List<Publisher> list = dao.selectAll(new SearchForm("テスト出版"));
             Assertions.assertEquals(list.size(), 2);
@@ -233,38 +186,14 @@ public class PublisherDaoTest
         {
             final String newAddress = "引っ越しました";
             PublisherDao dao = new PublisherDaoMock();
-            for(int i = 0; i < RETRY_COUNT; i++)
-            {
-                try
-                {
-                    dao.insert(createPublisher());
-                    break;
-                }
-                catch(PersistenceException e)
-                {
-                    Thread.sleep(1000 * i * i);
-                    continue;
-                }
-            }
+            dao.insert(createPublisher());
             List<Publisher> list = dao.selectAll(null);
             Integer id = null;
             for(Publisher publisher: list)
             {
                 id = publisher.getId();
                 publisher.setAddress1(newAddress);
-                for(int i = 0; i < RETRY_COUNT; i++)
-                {
-                    try
-                    {
-                        dao.update(publisher);
-                        break;
-                    }
-                    catch(PersistenceException e)
-                    {
-                        Thread.sleep(1000 * i * i);
-                        continue;
-                    }
-                }
+                dao.update(publisher);
             }
             Publisher selectedPublisher = dao.selectOne(id);
             Assertions.assertEquals(newAddress, selectedPublisher.getAddress1());
@@ -280,35 +209,11 @@ public class PublisherDaoTest
         synchronized(lock)
         {
             PublisherDao dao = new PublisherDaoMock();
-            for(int i = 0; i < RETRY_COUNT; i++)
-            {
-                try
-                {
-                    dao.insert(createPublisher());
-                    break;
-                }
-                catch(PersistenceException e)
-                {
-                    Thread.sleep(1000 * i * i);
-                    continue;
-                }
-            }
+            dao.insert(createPublisher());
             List<Publisher> list = dao.selectAll(null);
             for(Publisher publisher : list)
             {
-                for(int i = 0; i < RETRY_COUNT; i++)
-                {
-                    try
-                    {
-                        dao.deleteById(publisher.getId());
-                        break;
-                    }
-                    catch(PersistenceException e)
-                    {
-                        Thread.sleep(1000 * i * i);
-                        continue;
-                    }
-                }
+                dao.deleteById(publisher.getId());
                 Publisher result = dao.selectOne(publisher);
                 Assertions.assertEquals(null, result);
             }
@@ -336,7 +241,12 @@ public class PublisherDaoTest
  */
 class PublisherDaoMock extends PublisherDao implements IDao<Publisher>
 {
-    private static final int RETRY_COUNT = 3;
+    /** リトライ数 */
+    private static final int RETRY_COUNT = 5;
+
+    /** 次のリトライまで待機する時間（ミリ秒） */
+    private static final int WAIT_TIME = 500;
+
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(PublisherDao.class);
     //----------------------------------------------------------------------------------------------
@@ -376,5 +286,92 @@ class PublisherDaoMock extends PublisherDao implements IDao<Publisher>
             throw new RuntimeException(e);
         }
         return con;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * スーパークラスのinsert()をリトライするラップ
+     * @param arg 出版社オブジェクト
+     */
+    @Override
+    public void insert(Publisher arg)
+    {
+        try
+        {
+            for(int i = 0; i < RETRY_COUNT; i++)
+            {
+                try
+                {
+                    super.insert(arg);
+                    return;
+                }
+                catch(PersistenceException e)
+                {
+                    Thread.sleep(WAIT_TIME * i * i);
+                    continue;
+                }
+            }
+        }
+        catch(InterruptedException ie)
+        {
+            throw new RuntimeException(ie);
+        }
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * スーパークラスのupdateをリトライするラップ
+     * @param arg 出版社オブジェクト
+     */
+    @Override
+    public void update(Publisher arg)
+    {
+        try
+        {
+            for(int i = 0; i < RETRY_COUNT; i++)
+            {
+                try
+                {
+                    super.update(arg);
+                    return;
+                }
+                catch(PersistenceException e)
+                {
+                    Thread.sleep(WAIT_TIME * i * i);
+                    continue;
+                }
+            }
+        }
+        catch(InterruptedException ie)
+        {
+            throw new RuntimeException(ie);
+        }
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * スーパークラスのdelete()をリトライするラップ
+     * @param arg 出版社オブジェクト
+     */
+    @Override
+    public void delete(Publisher arg)
+    {
+        try
+        {
+            for(int i = 0; i < RETRY_COUNT; i++)
+            {
+                try
+                {
+                    super.delete(arg);
+                    return;
+                }
+                catch(PersistenceException e)
+                {
+                    Thread.sleep(WAIT_TIME * i * i);
+                    continue;
+                }
+            }
+        }
+        catch(InterruptedException ie)
+        {
+            throw new RuntimeException(ie);
+        }
     }
 }
