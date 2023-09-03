@@ -242,7 +242,7 @@ public class PublisherDaoTest
 class PublisherDaoMock extends PublisherDao implements IDao<Publisher>
 {
     /** リトライ数 */
-    private static final int RETRY_COUNT = 5;
+    private static final int RETRY_COUNT = 10;
 
     /** 次のリトライまで待機する時間（ミリ秒） */
     private static final int WAIT_TIME = 500;
