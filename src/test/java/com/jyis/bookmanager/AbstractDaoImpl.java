@@ -20,6 +20,7 @@ import org.sqlite.Function;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteConnection;
 import org.sqlite.SQLiteDataSource;
+import org.sqlite.SQLiteOpenMode;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -107,6 +108,7 @@ public final class AbstractDaoImpl<T> extends AbstractDao<T> implements IDao<T>
         SQLiteDataSource ds = new SQLiteDataSource();
         SQLiteConfig sqliteConfig = ds.getConfig();
         sqliteConfig.setBusyTimeout(6_000);
+        sqliteConfig.setOpenMode(SQLiteOpenMode.FULLMUTEX);
         ds.setUrl(String.format("jdbc:sqlite:%s", SQLITE_FILE_PATH));
         return ds;
     }

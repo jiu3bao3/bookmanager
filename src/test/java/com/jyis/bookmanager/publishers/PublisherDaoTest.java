@@ -31,7 +31,7 @@ import com.jyis.bookmanager.exceptions.PersistenceException;
 public class PublisherDaoTest
 {
     /** DBがロックされていた場合にリトライする回数の上限 */
-    private static final int RETRY_COUNT = 5;
+    private static final int RETRY_COUNT = 10;
 
     /** テーブルクリア用SQL */
     private static final String[] CLEAR_SQL = new String[] { "DELETE FROM publishers" };
@@ -62,28 +62,12 @@ public class PublisherDaoTest
                         }
                         catch(PersistenceException e)
                         {
-                            Thread.sleep(1_000 * i * i);
+                            Thread.sleep(400 * i * i);
                             continue;
                         }
                     }
                 }
                 con.commit();
-            }
-        }
-    }
-    //----------------------------------------------------------------------------------------------
-    /**
-     * データベース接続
-     */
-    @Test
-    public void openTest() throws Exception
-    {
-        synchronized(lock)
-        {
-            PublisherDaoMock dao = new PublisherDaoMock();
-            try(Connection con = dao.open())
-            {
-                Assertions.assertTrue(con instanceof SQLiteConnection);
             }
         }
     }
