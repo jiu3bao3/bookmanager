@@ -43,7 +43,7 @@ public class PublisherDaoTest
      * テストに用いたデータを削除する
      */
     @AfterEach
-    public void clearData() throws Exception
+    public synchronized void clearData() throws Exception
     {
         synchronized(lock)
         {
@@ -62,7 +62,7 @@ public class PublisherDaoTest
                         }
                         catch(PersistenceException e)
                         {
-                            Thread.sleep(200 * i * i);
+                            Thread.sleep(1_000 * i * i);
                             continue;
                         }
                     }
