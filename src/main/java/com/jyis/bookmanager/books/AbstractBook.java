@@ -16,7 +16,10 @@ public abstract class AbstractBook extends AbstractForm implements Serializable
 {
     /** ISBN（13桁）の桁数 */
     public static final int ISBN13_LENGTH = 13;
-    
+
+    /** ISBN(10桁)の桁数 */
+    public static final int ISBN10_LENGTH = 10;
+
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(AbstractBook.class);
     
@@ -65,6 +68,28 @@ public abstract class AbstractBook extends AbstractForm implements Serializable
             return false;
         }
         return (10 - (summary % 10)) % 10 == lastDigit;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 短い形式のISBNを13桁のコードに変換する
+     * @param shortIsbn 10桁のISBNコード
+     * @return 13桁のISBNコード
+     */
+    public static synchronized String toLongIsbn(final String shortIsbn)
+    {
+        if(shortIsbn == null) return null;
+        if(shortIsbn.length() != ISBN10_LENGTH) throw new IllegalArgumentException();
+
+        StringBuffer sb = new StringBuffer("978");
+        int summary = 9 + 3 * 7 + 8;
+        for(int i = 0; i < (ISBN10_LENGTH - 1) ; i++)
+        {
+            String digit = shortIsbn.substring(i, i + 1);
+            sb.append(digit);
+            summary += ((i % 2 == 1) ? 1 : 3 ) * Integer.parseInt(digit);
+        }
+        sb.append(String.valueOf((10 - (summary % 10)) % 10));
+        return sb.toString();
     }
     //----------------------------------------------------------------------------------------------
     /**
