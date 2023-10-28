@@ -111,7 +111,7 @@ public class BookDao extends AbstractDao<Book>
     {
         Book book = null;
         String sql = "SELECT B.id, B.title, B.authors, B.publisher, B.publisher_id, "
-                   + "B.published_on, B.isbn FROM books B "
+                   + "B.published_on, B.isbn, B.language_id FROM books B "
                    + "WHERE ((B.id = ? or 1 = ?) AND (B.isbn = ? or 1 = ?))";
         try(Connection con = open();
             PreparedStatement stmt = con.prepareStatement(sql))
@@ -127,6 +127,7 @@ public class BookDao extends AbstractDao<Book>
                     book.setIsbn(results.getString("isbn"));
                     book.setPublisherName(results.getString("publisher"));
                     book.setPublisherId(results.getInt("publisher_id"));
+                    book.setLanguage(results.getInt("language_id"));
                 }
             }
             Map<ExtraInfo, String> extraInfo = retrieveExtraInfo(con, id);

@@ -5,12 +5,14 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,15 +27,30 @@ import com.jyis.bookmanager.AbstractDaoImpl;
 @SpringBootTest
 public class BookDaoTest
 {
+    /** 言語マスター作成用SQL */
+    private static final String[] MASTER_SQL = {
+        "INSERT INTO languages(id, display_name) VALUES(1, '日本語'),(2, '英語'),(3,'中国語')"
+    };
+
     /** テーブルクリア用SQL */
     private static final String[] CLEAR_SQL = {
          "DELETE FROM read_books",
          "DELETE FROM extra_info",
          "DELETE FROM books",
-         "DELETE FROM publishers" };
+         "DELETE FROM publishers",
+         "DELETE FROM languages" };
          
     /** テスト用ISBN */
     private static final String TEST_ISBN = "9784000072151";
+    //----------------------------------------------------------------------------------------------
+    /**
+     * マスターデータ作成
+     */
+    @BeforeEach
+    public void createMasterData() throws Exception
+    {
+        executeSqlStatements(MASTER_SQL);
+    }
     //----------------------------------------------------------------------------------------------
     /**
      * 後始末
@@ -41,11 +58,20 @@ public class BookDaoTest
     @AfterEach
     public void clearData() throws Exception
     {
+        executeSqlStatements(CLEAR_SQL);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+    * SQL実行（引数で与えられたSQLを順次実行する
+    * @param sqlArray SQLの配列
+    */
+    private void executeSqlStatements(final String[] sqlArray) throws SQLException
+    {
         BookDaoMock dao = new BookDaoMock();
         try(Connection con = dao.open();
             Statement stmt = con.createStatement())
         {
-            for(String sql : CLEAR_SQL)
+            for(String sql : sqlArray)
             {
                 stmt.execute(sql);
             }
@@ -149,6 +175,7 @@ public class BookDaoTest
         book.setIsbn(TEST_ISBN);
         book.setPublishedYear(2002);
         book.setPublisherName("岩波書店");
+        book.setLanguage(1);
         return book;
     }
 }

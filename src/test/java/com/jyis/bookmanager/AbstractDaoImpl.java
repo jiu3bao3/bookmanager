@@ -49,7 +49,9 @@ public final class AbstractDaoImpl<T> extends AbstractDao<T> implements IDao<T>
                      + "PHONE string, EMAIL string, NOTE text)",
                      
                      "CREATE TABLE IF NOT EXISTS EXTRA_INFO(ID INTEGER PRIMARY KEY AUTOINCREMENT,"
-                     + "BOOK_ID NUMBER, NOTE_TYPE STRING, NOTE STRING)"
+                     + "BOOK_ID NUMBER, NOTE_TYPE STRING, NOTE STRING)",
+                     
+                     "CREATE TABLE IF NOT EXISTS LANGUAGES(ID, DISPLAY_NAME)"
     };
     /** ロガー */
     private static final Logger logger = LoggerFactory.getLogger(AbstractDaoImpl.class);

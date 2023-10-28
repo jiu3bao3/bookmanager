@@ -40,6 +40,9 @@ public abstract class AbstractBook extends AbstractForm implements Serializable
     
     /** 出版社ID */
     protected Integer publisherId;
+    
+    /** 言語 */
+    protected Language language;
     //----------------------------------------------------------------------------------------------
     /**
      * ISBN（13桁）の妥当性を検査する
@@ -210,5 +213,32 @@ public abstract class AbstractBook extends AbstractForm implements Serializable
     public Integer getPublisherId()
     {
         return publisherId;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 使用言語をセットする
+     * @param arg 言語
+     */
+    public void setLanguage(final Language arg)
+    {
+        language = arg;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 使用言語をセットする
+     * @param arg 言語
+     */
+    public void setLanguage(final int arg)
+    {
+        language = Language.of(arg);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 使用言語を取得する
+     * @return 言語
+     */
+    public Language getLanguage()
+    {
+        return language;
     }
 }
