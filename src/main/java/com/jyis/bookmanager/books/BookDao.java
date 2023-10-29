@@ -128,6 +128,7 @@ public class BookDao extends AbstractDao<Book>
                     book.setPublisherName(results.getString("publisher"));
                     book.setPublisherId(results.getInt("publisher_id"));
                     book.setLanguage(results.getInt("language_id"));
+                    logger.warn(book.toString());
                 }
             }
             Map<ExtraInfo, String> extraInfo = retrieveExtraInfo(con, id);

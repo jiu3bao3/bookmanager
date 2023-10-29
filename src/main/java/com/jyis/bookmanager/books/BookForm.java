@@ -42,6 +42,7 @@ public class BookForm extends AbstractBook implements Serializable
         publisherId = book.getPublisherId();
         note = book.getNote();
         isbn = book.getIsbn();
+        language = book.getLanguage();
         contents = book.getContents();
     }
     //----------------------------------------------------------------------------------------------
@@ -57,6 +58,7 @@ public class BookForm extends AbstractBook implements Serializable
         book.setIsbn(getIsbn());
         book.setPublishedYear(getPublishedYear());
         book.setPublisherId(getPublisherId());
+        book.setLanguage(getLanguage());
         return book;
     }
     //----------------------------------------------------------------------------------------------
