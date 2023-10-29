@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,6 +164,16 @@ public class BookDaoTest
             }
         }
         Assertions.assertTrue(count == 0);
+    }
+    //----------------------------------------------------------------------------------------------
+    @Test
+    public void listLanguagesTest() throws Exception
+    {
+        BookDao dao = new BookDaoMock();
+        Map<Language, String> map = dao.listLanguages();
+        Assertions.assertEquals(map.get(Language.JAPANESE), "日本語");
+        Assertions.assertEquals(map.get(Language.ENGLISH), "英語");
+        Assertions.assertEquals(map.get(Language.CHINESE), "中国語");
     }
     //----------------------------------------------------------------------------------------------
     /**

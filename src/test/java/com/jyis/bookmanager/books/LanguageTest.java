@@ -23,4 +23,11 @@ public class LanguageTest
        Assertions.assertEquals(Language.of(2), Language.ENGLISH);
        Assertions.assertEquals(Language.of(3), Language.CHINESE);
     }
+    //---------------------------------------------------------------------------------------------
+    @Test
+    public void ofTestWithNull() throws Exception
+    {
+        Assertions.assertNull(Language.of(0));
+        Assertions.assertNull(Language.of(null));
+    }
 }
