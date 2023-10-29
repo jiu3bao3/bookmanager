@@ -331,6 +331,31 @@ public class BookDao extends AbstractDao<Book>
     }
     //----------------------------------------------------------------------------------------------
     /**
+     * 言語マスターのMapを返す
+     * @return 言語マスターのMap
+     */
+    public Map<Language, String> listLanguages()
+    {
+        final String sql = "SELECT id, display_name FROM languages ORDER BY id";
+        Map<Language, String> languageMap = new HashMap<>();
+        try(Connection con = open();
+            Statement stmt = con.createStatement();
+            ResultSet results = stmt.executeQuery(sql))
+        {
+            while(results.next())
+            {
+                Language language = Language.of(results.getInt("id"));
+                languageMap.put(language, results.getString("display_name"));
+            }
+        }
+        catch(SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return languageMap;
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
      * 読書記録を削除する
      * @param bookId Bookオブジェクトのid
      */

@@ -2,6 +2,7 @@
 package com.jyis.bookmanager.books;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,5 +84,14 @@ public class BookManagementService
         book.setPublisherName(form.getPublisherName());
         book.setPublisherId(form.getPublisherId());
         dao.update(book);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 言語マスターのMapを返す
+     * @return 言語マスターのMap
+     */
+    public Map<Language, String> listLanguages()
+    {
+        return dao.listLanguages();
     }
 }
