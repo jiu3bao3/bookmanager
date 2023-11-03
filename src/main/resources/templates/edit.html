@@ -71,47 +71,9 @@
 	function search() {
 		getPublisherList();
 	}
-	function getLanguages()
-	{
-		const URL = "/books/languages";
-		const initialLanguage = document.getElementById('initial_language').value;
-		var xmlhttp = new XMLHttpRequest();
-		xmlhttp.onreadystatechange = function() {
-			if (xmlhttp.readyState == XMLHttpRequest.DONE) {
-				if (xmlhttp.status == 200) {
-					const select = document.getElementById('language_id_select');
-					select.options.length = 0;
-					let count = 0;
-					let json =  JSON.parse(xmlhttp.responseText);
-					Object.keys(json).forEach((key) => {
-						let item = document.createElement('option');
-						item.value = key;
-						if(key == initialLanguage)
-						{
-							item.selected = true;
-						}
-						item.innerHTML = json[key];
-						select.appendChild(item);
-						count += 1;
-					});
-				}
-				else
-				{
-					alert('Error' + xmlhttp.responseText);
-				}
-			}
-		};
-		xmlhttp.open("GET", URL, true);
-		xmlhttp.send();
-	}
-	function init()
-	{
-		try { getLanguages(); } catch(e) { alert(e) }
-		getPublisherList();
-	}
 	</script>
 </head>
-<body onload="init();">
+<body onload="search();">
 	<div class="container">
 		<h1>編集</h1>
 		<form th:action="${action}" method="post" th:object="${form}">
@@ -146,8 +108,9 @@
 					<tr>
 						<th>言語</th>
 						<td>
-							<select id="language_id_select" style="width: 10em;">
+							<select id="language_id_select" th:field="*{language}" style="width: 10em;">
 								<option value=""></option>
+								<option th:each="item : ${languageMap}" th:value="${item.key}" th:text="${item.value}"></option>
 							</select>
 							<input id="initial_language" type="hidden" th:value="*{language}">
 						</td>

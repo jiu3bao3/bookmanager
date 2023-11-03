@@ -230,7 +230,16 @@ public abstract class AbstractBook extends AbstractForm implements Serializable
      */
     public void setLanguage(final int arg)
     {
-        language = Language.of(arg);
+        language = (arg == 0) ? null : Language.of(arg);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * 使用言語をセットする
+     * @param arg 言語
+     */
+    public void setLanguage(final String arg)
+    {
+        language = (arg == null) ? null : Language.valueOf(arg);
     }
     //----------------------------------------------------------------------------------------------
     /**

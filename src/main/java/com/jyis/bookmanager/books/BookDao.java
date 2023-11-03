@@ -228,7 +228,7 @@ public class BookDao extends AbstractDao<Book>
     public void insert(final Book book)
     {
         String sql1 = "INSERT INTO BOOKS (isbn, title, authors, publisher, "
-                   + "publisher_id, published_on) VALUES (?, ?, ?, ?, ?, ?)";
+                   + "publisher_id, published_on, language_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String sql2 = "INSERT INTO READ_BOOKS(book_id, read_on) "
                    + "SELECT MAX(B.id), GETDATE() FROM books B";
         try(Connection con = open())
@@ -262,6 +262,15 @@ public class BookDao extends AbstractDao<Book>
                 {
                     stmt.setInt(6, book.getPublishedYear());
                 }
+                Language language = book.getLanguage();
+                if(language != null)
+                {
+                    stmt.setInt(7, language.toCode());
+                }
+                else
+                {
+                    stmt.setNull(7, Types.INTEGER);
+                }
                 stmt.executeUpdate();
             }
             try(Statement stmt = con.createStatement())
@@ -288,7 +297,7 @@ public class BookDao extends AbstractDao<Book>
             throw new IllegalArgumentException("BookのIDが設定されていません");
         }
         String sql = "UPDATE books SET title= ?, authors = ?, isbn= ?, published_on = ?, "
-                   + "publisher_id = ? WHERE id = ?";
+                   + "publisher_id = ?, language_id = ? WHERE id = ?";
         try(Connection con = open();
             PreparedStatement stmt = con.prepareStatement(sql))
         {
@@ -311,7 +320,15 @@ public class BookDao extends AbstractDao<Book>
             {
                 stmt.setInt(5, book.getPublisherId());
             }
-            stmt.setInt(6, book.getId());
+            if(book.getLanguage() == null)
+            {
+                stmt.setNull(6, Types.INTEGER);
+            }
+            else
+            {
+                stmt.setInt(6, book.getLanguage().toCode());
+            }
+            stmt.setInt(7, book.getId());
             stmt.executeUpdate();
             con.commit();
         }

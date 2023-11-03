@@ -51,7 +51,7 @@ public final class BookController extends AbstractController
     }
     //----------------------------------------------------------------------------------------------
     /**
-     * 一覧画面表氏
+     * 一覧画面表示
      * @return 一覧画面用ModelAndView
      */
     @RequestMapping(value="/index", method=RequestMethod.GET)
@@ -99,6 +99,7 @@ public final class BookController extends AbstractController
     {
         ModelAndView modelAndView = new ModelAndView("edit", "form", new BookForm());
         modelAndView.addObject("action", "new");
+        modelAndView.addObject("languageMap", service.listLanguages());
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
@@ -122,6 +123,7 @@ public final class BookController extends AbstractController
             form.setMessage(e.getMessage());
         }
         ModelAndView modelAndView = new ModelAndView("edit", "form", form);
+        modelAndView.addObject("languageMap", service.listLanguages());
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
@@ -136,6 +138,7 @@ public final class BookController extends AbstractController
         Book book = service.selectBook(id);
         BookForm form = (book != null) ? new BookForm(book) : new BookForm();
         ModelAndView modelAndView = new ModelAndView("edit", "form", form);
+        modelAndView.addObject("languageMap", service.listLanguages());
         modelAndView.addObject("_method", "PATCH");
         modelAndView.addObject("action", String.format("/%d/update", id));
         return modelAndView;
@@ -162,6 +165,7 @@ public final class BookController extends AbstractController
             form.setMessage(e.getMessage());
         }
         ModelAndView modelAndView = new ModelAndView("edit", "form", form);
+        modelAndView.addObject("languageMap", service.listLanguages());
         return modelAndView;
     }
     //----------------------------------------------------------------------------------------------
@@ -180,6 +184,7 @@ public final class BookController extends AbstractController
         form.setMessage("削除しました。");
         ModelAndView modelAndView = new ModelAndView("index", "bookList", list);
         modelAndView.addObject("form", form);
+        modelAndView.addObject("languageMap", service.listLanguages());
         return modelAndView;
     }
 }

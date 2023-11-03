@@ -83,6 +83,7 @@ public class BookManagementService
         book.setPublishedYear(form.getPublishedYear());
         book.setPublisherName(form.getPublisherName());
         book.setPublisherId(form.getPublisherId());
+        book.setLanguage(form.getLanguage());
         dao.update(book);
     }
     //----------------------------------------------------------------------------------------------

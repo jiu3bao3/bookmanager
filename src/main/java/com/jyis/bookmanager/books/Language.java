@@ -38,4 +38,13 @@ public enum Language
         return Stream.<Language>of(Language.values()).filter(item -> item.languageCode == arg)
                                                     .findFirst().get();
     }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * DBに保存する値に変換する
+     * @return DBに保存する値
+     */
+    public int toCode()
+    {
+        return languageCode;
+    }
 }
