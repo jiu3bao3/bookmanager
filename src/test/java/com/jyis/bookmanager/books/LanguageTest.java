@@ -24,10 +24,24 @@ public class LanguageTest
        Assertions.assertEquals(Language.of(3), Language.CHINESE);
     }
     //---------------------------------------------------------------------------------------------
+    /**
+     * 未設定の場合はNULLをof()が返すこと
+     */
     @Test
     public void ofTestWithNull() throws Exception
     {
         Assertions.assertNull(Language.of(0));
         Assertions.assertNull(Language.of(null));
+    }
+    //---------------------------------------------------------------------------------------------
+    /**
+     * valueOfにより文字列からenumを取得できること
+     */
+    @Test
+    public void valueOfTest() throws Exception
+    {
+        Assertions.assertEquals(Language.valueOf("JAPANESE"), Language.JAPANESE);
+        Assertions.assertEquals(Language.valueOf("ENGLISH"), Language.ENGLISH);
+        Assertions.assertEquals(Language.valueOf("CHINESE"), Language.CHINESE);
     }
 }

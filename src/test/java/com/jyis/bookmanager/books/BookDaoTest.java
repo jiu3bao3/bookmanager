@@ -126,6 +126,7 @@ public class BookDaoTest
         Book book = dao.selectOne(TEST_ISBN);
         Assertions.assertEquals(book.getTitle(), "吾輩は猫である");
         Assertions.assertEquals(book.getAuthor(), "夏目漱石");
+        Assertions.assertEquals(book.getLanguage(), Language.JAPANESE);
         Assertions.assertEquals(book.getIsbn(), TEST_ISBN);
     }
     //----------------------------------------------------------------------------------------------
@@ -140,10 +141,12 @@ public class BookDaoTest
         dao.insert(createBook());
         Book book = dao.selectOne(TEST_ISBN);
         book.setTitle(NEW_TITLE);
+        book.setLanguage(Language.valueOf("ENGLISH"));
         dao.update(book);
         Book reselectBook = dao.selectOne(TEST_ISBN);
         Assertions.assertEquals(book.getTitle(), NEW_TITLE);
         Assertions.assertEquals(book.getIsbn(), TEST_ISBN);
+        Assertions.assertEquals(book.getLanguage(), Language.ENGLISH);
     }
     //----------------------------------------------------------------------------------------------
     @Test

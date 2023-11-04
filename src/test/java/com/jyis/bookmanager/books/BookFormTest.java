@@ -37,6 +37,7 @@ public class BookFormTest
         Assertions.assertEquals(form.getContents(), "CONTENTS");
         Assertions.assertEquals(form.getNote(), "NOTE");
         Assertions.assertEquals(form.getPublisherName(), "ＳＢクリエイティブ");
+        Assertions.assertEquals(form.getLanguage(), Language.JAPANESE);
         Assertions.assertEquals(form.getPublishedYear(), Calendar.getInstance().get(Calendar.YEAR));
     }
     //----------------------------------------------------------------------------------------------
@@ -52,6 +53,7 @@ public class BookFormTest
         Assertions.assertEquals(book.getTitle(), "吾輩は猫である");
         Assertions.assertEquals(book.getAuthor(), "夏目漱石");
         Assertions.assertEquals(book.getPublishedYear(), 1900);
+        Assertions.assertEquals(book.getLanguage(), Language.CHINESE);
     }
     //----------------------------------------------------------------------------------------------
     /**
@@ -134,6 +136,7 @@ public class BookFormTest
         book.setPublisherName("ＳＢクリエイティブ");
         book.setPublisher(new Publisher(book.getPublisherName()));
         book.setPublishedYear(Calendar.getInstance().get(Calendar.YEAR));
+        book.setLanguage(Language.JAPANESE);
         return book;
     }
     //----------------------------------------------------------------------------------------------
@@ -147,6 +150,7 @@ public class BookFormTest
         form.setTitle("吾輩は猫である");
         form.setAuthor("夏目漱石");
         form.setPublishedYear(1900);
+        form.setLanguage(Language.CHINESE);
         return form;
     }
 }
