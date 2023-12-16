@@ -21,7 +21,7 @@ import com.jyis.bookmanager.publishers.Publisher;
 public class BookFormTest
 {
     /** テスト用ISBNコード */
-    private static final String ISBN = "9784815615499";
+    private static final String ISBN = "978-481561549-9";
     //----------------------------------------------------------------------------------------------
     /**
      * BookオブジェクトからBookFormオブジェクトを構築できること
@@ -33,7 +33,7 @@ public class BookFormTest
         BookForm form = new BookForm(book);
         Assertions.assertEquals(form.getTitle(), "書誌名");
         Assertions.assertEquals(form.getAuthor(), "著者名");
-        Assertions.assertEquals(form.getIsbn(), ISBN);
+        Assertions.assertEquals(form.getIsbn(), "9784815615499");
         Assertions.assertEquals(form.getContents(), "CONTENTS");
         Assertions.assertEquals(form.getNote(), "NOTE");
         Assertions.assertEquals(form.getPublisherName(), "ＳＢクリエイティブ");

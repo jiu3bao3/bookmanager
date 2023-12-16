@@ -71,7 +71,7 @@ public final class AbstractDaoImpl<T> extends AbstractDao<T> implements IDao<T>
     @Override
     public void insert(T arg) {}
     //----------------------------------------------------------------------------------------------
-   @Override
+    @Override
     public void update(T arg) {}
     //----------------------------------------------------------------------------------------------
     @Override

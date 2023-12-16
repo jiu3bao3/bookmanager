@@ -30,6 +30,16 @@ public class BookForm extends AbstractBook implements Serializable
     //----------------------------------------------------------------------------------------------
     /**
      * コンストラクタ
+     * @param arg 言語
+     */
+    public BookForm(final Language arg)
+    {
+        this();
+        setLanguage(arg);
+    }
+    //----------------------------------------------------------------------------------------------
+    /**
+     * コンストラクタ
      * @param book Bookオブジェクト
      */
     public BookForm(final Book book)
@@ -41,7 +51,7 @@ public class BookForm extends AbstractBook implements Serializable
         publisherName = book.getPublisherName();
         publisherId = book.getPublisherId();
         note = book.getNote();
-        isbn = book.getIsbn();
+        setIsbn(book.getIsbn());
         language = book.getLanguage();
         contents = book.getContents();
     }

@@ -97,7 +97,8 @@ public final class BookController extends AbstractController
     @RequestMapping(value="/new", method=RequestMethod.GET)
     public ModelAndView newBook()
     {
-        ModelAndView modelAndView = new ModelAndView("edit", "form", new BookForm());
+        BookForm form = new BookForm(Language.JAPANESE);
+        ModelAndView modelAndView = new ModelAndView("edit", "form", form);
         modelAndView.addObject("action", "new");
         modelAndView.addObject("languageMap", service.listLanguages());
         return modelAndView;

@@ -167,7 +167,7 @@ public abstract class AbstractBook extends AbstractForm implements Serializable
      */
     public void setIsbn(final String arg)
     {
-        isbn = arg;
+        isbn = (arg != null) ? arg.replaceAll("-", "") : null;
     }
     //----------------------------------------------------------------------------------------------
     /**
